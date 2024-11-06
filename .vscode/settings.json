@@ -9,6 +9,7 @@
         "UnitCanAssist",
         "UnitInRange",
         "UnitPlayerOrPetInParty",
-        "C_Spell"
+        "C_Spell",
+        "GetTime"
     ]
 }
