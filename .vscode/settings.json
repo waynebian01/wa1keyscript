@@ -1,0 +1,13 @@
+{
+    "Lua.diagnostics.globals": [
+        "UnitHealth",
+        "UnitHealthMax",
+        "C_UnitAuras",
+        "UnitPlayerOrPetInRaid",
+        "UnitExists",
+        "UnitIsDeadOrGhost",
+        "UnitCanAssist",
+        "UnitInRange",
+        "UnitPlayerOrPetInParty"
+    ]
+}

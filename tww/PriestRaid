@@ -1,0 +1,50 @@
+local index = 0
+local lowestHealth = 100
+local auraID = 194384
+local auraName = "救赎之魂"
+local playerHealth = UnitHealth("player") / UnitHealthMax("player") * 100
+
+local function hasAura(unit, auraID, auraName)
+    for j = 1, 40 do
+        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
+        if not auraData then break end
+        if (auraData.spellId == auraID and auraData.sourceUnit == "player") or
+            (auraData.name == auraName) then
+            return true
+        end
+    end
+    return false
+end
+
+if UnitPlayerOrPetInRaid("player") then
+    for i = 1, 40 do
+        local unit = "raid" .. i
+        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
+            if not hasAura(unit, auraID, auraName) then
+                local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100
+                if unitHealth < lowestHealth then
+                    lowestHealth = unitHealth
+                    index = i + 5
+                end
+            end
+        end
+    end
+elseif UnitPlayerOrPetInParty("player") then
+    for i = 1, 4 do
+        local unit = "party" .. i
+        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
+            if not hasAura(unit, auraID, auraName) then
+                local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100
+                if unitHealth < lowestHealth then
+                    lowestHealth = unitHealth
+                    index = i + 1
+                end
+            end
+        end
+    end
+    if not hasAura("player", auraID) and playerHealth < lowestHealth then
+        index = 1
+    end
+end
+
+return index
