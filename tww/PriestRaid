@@ -1,8 +1,24 @@
 local index = 0
 local lowestHealth = 100
-local auraID = 194384
-local auraName = "救赎之魂"
+local auraName1 = "救赎"
+local auraName2 = "救赎之魂"
 local playerHealth = UnitHealth("player") / UnitHealthMax("player") * 100
+
+-- 检查技能冷却
+local G = C_Spell.GetSpellCooldown(61304)-- 公共冷却
+local GCD = (G.startTime > 0) and (G.startTime + G.duration - GetTime()) or 0
+
+local Flourish = C_Spell.GetSpellCooldown(17)-- 真言术：盾
+local FlourishCD = (Flourish.startTime > 0) and (Flourish.startTime + Flourish.duration - GetTime()) or 0
+
+-- 检测技能充能
+local Swiftmend = C_Spell.GetSpellCharges(18562)-- 迅捷治疗
+local SwiftmendCharges = Swiftmend.currentCharges
+
+local Grove = C_Spell.GetSpellCharges(102693)-- 树人
+local GroveCharges = Grove.currentCharges
+
+
 
 local function hasAura(unit, auraID, auraName)
     for j = 1, 40 do

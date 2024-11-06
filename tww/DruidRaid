@@ -1,9 +1,8 @@
 local index = 0
-local auraID1 = 774 -- 光环回春术
-local auraID2 = 155777 -- 光环回春术（萌芽）
-local auraName = "救赎之魂"
-local healthThreshold90 = 90
-local healthThreshold80 = 80
+local auraName1 = "回春术" -- 光环回春术
+local auraName2 = "回春术（萌芽）" -- 光环回春术（萌芽）
+local auraName3 = "生命绽放"
+local SpiritofRedemption = "救赎之魂"
 
 -- 检查技能冷却
 local G = C_Spell.GetSpellCooldown(61304)-- 公共冷却
@@ -20,11 +19,11 @@ local Grove = C_Spell.GetSpellCharges(102693)-- 树人
 local GroveCharges = Grove.currentCharges
 
 -- 检查光环
-local function hasAura(unit, auraID)
+local function hasAura(unit, auraName)
     for j = 1, 40 do
         local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
         if not auraData then break end
-        if (auraData.spellId == auraID and auraData.sourceUnit == "player") or (auraData.name == auraName) then
+        if (auraData.name == auraName and auraData.sourceUnit == "player") or (auraData.name == SpiritofRedemption) then
             return true
         end
     end
@@ -42,8 +41,9 @@ if UnitPlayerOrPetInRaid("player") then
         if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
             teammateCount = teammateCount + 1
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100
-            local hasAura1 = hasAura(unit, auraID1)
-            local hasAura2 = hasAura(unit, auraID2)
+            local hasAura1 = hasAura(unit, auraName1)
+            local hasAura2 = hasAura(unit, auraName2)
+            local hasAura2 = hasAura(unit, auraName3)
             
             if teammateCount > 1 and teammateCount <= 5 then
                 setCount = 2
@@ -56,10 +56,10 @@ if UnitPlayerOrPetInRaid("player") then
             end
             
             -- 统计低于设定值生命值的单位数量
-            if unitHealth < healthThreshold90 then
+            if unitHealth < 90 then
                 ninetyCount = ninetyCount + 1
             end
-            if unitHealth < healthThreshold80 then
+            if unitHealth < 80 then
                 eightyCount = eightyCount + 1
             end
             
