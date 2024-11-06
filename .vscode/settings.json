@@ -8,6 +8,7 @@
         "UnitIsDeadOrGhost",
         "UnitCanAssist",
         "UnitInRange",
-        "UnitPlayerOrPetInParty"
+        "UnitPlayerOrPetInParty",
+        "C_Spell"
     ]
 }
