@@ -2,7 +2,7 @@ local index = 0
 local auraName1 = "回春术" -- 光环回春术
 local auraName2 = "回春术（萌芽）" -- 光环回春术（萌芽）
 local auraName3 = "生命绽放"
-local SpiritofRedemption = "救赎之魂"
+local auraName4 = "救赎之魂"
 
 -- 检查技能冷却
 local G = C_Spell.GetSpellCooldown(61304)-- 公共冷却
@@ -23,7 +23,7 @@ local function hasAura(unit, auraName)
     for j = 1, 40 do
         local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
         if not auraData then break end
-        if (auraData.name == auraName and auraData.sourceUnit == "player") or (auraData.name == SpiritofRedemption) then
+        if (auraData.name == auraName and auraData.sourceUnit == "player") or (auraData.name == auraName) then
             return true
         end
     end
@@ -43,7 +43,7 @@ if UnitPlayerOrPetInRaid("player") then
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100
             local hasAura1 = hasAura(unit, auraName1)
             local hasAura2 = hasAura(unit, auraName2)
-            local hasAura2 = hasAura(unit, auraName3)
+            local hasAura3 = hasAura(unit, auraName3)
             
             if teammateCount > 1 and teammateCount <= 5 then
                 setCount = 2
@@ -78,7 +78,7 @@ if UnitPlayerOrPetInRaid("player") then
             
             -- 判断单位生命值和光环条件
             if ninetyCount < setCount or (FlourishCD > GCD) or GroveCharges < 3 then
-                if unitHealth < healthThreshold90 then
+                if unitHealth < 90 then
                     if not hasAura1 and not hasAura2 then
                         index = i + 5
                     elseif hasAura1 or hasAura2 then
@@ -86,7 +86,7 @@ if UnitPlayerOrPetInRaid("player") then
                     end
                 end
                 
-                if unitHealth < healthThreshold80 then
+                if unitHealth < 80 then
                     if hasAura1 ~= hasAura2 then
                         index = i + 5
                     elseif hasAura1 and hasAura2 then
