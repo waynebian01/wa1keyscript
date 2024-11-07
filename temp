@@ -1,0 +1,11 @@
+if UnitPlayerOrPetInRaid("player") then
+    for i = 1, 40 do
+        local unit = "raid" .. i
+        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
+            if unitHealth < lowestHealth then
+                lowestHealth = unitHealth
+                lowest = i
+            end
+        end
+    end
+end

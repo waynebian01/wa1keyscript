@@ -12,6 +12,10 @@
         "C_Spell",
         "GetTime",
         "UnitGroupRolesAssigned",
-        "UnitAffectingCombat"
+        "UnitAffectingCombat",
+        "UnitIsUnit"
+    ],
+    "Lua.diagnostics.disable": [
+        "unused-local"
     ]
 }

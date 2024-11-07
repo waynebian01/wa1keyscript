@@ -1,7 +1,8 @@
 local index = 0 --输出指令，50代表耀，55代表耐力
+local lowest = 0
 local lowestHealth = 100
-local auraID1 = 194384
-local auraID2 = 139
+local auraID1 = 194384 --救赎
+local auraID2 = 139    --恢复
 local auraName1 = "真言术：韧"
 local auraName2 = "救赎之魂"
 local playerHealth = UnitHealth("player") / UnitHealthMax("player") * 100
@@ -71,20 +72,22 @@ if UnitPlayerOrPetInRaid("player") then
                 noRedemptionCount = noRedemptionCount + 1
             end
 
+            if not hasAura1 and not hasAura4 then
+                if unitHealth < lowestHealth then
+                    lowestHealth = unitHealth --无救赎,最低生命值
+                    lowest = i + 5            --无救赎,生命值最低的单位
+                end
+            end
+
 
             if noRedemptionCount >= setCount and ShineCharges >= 1 then
-                if not UnitCanAssist("player", "target") then
-                    if unitHealth < lowestHealth then
-                        lowestHealth = unitHealth
-                        index = i + 105
-                    end
-                end
-
-
-                if not hasAura1 and not hasAura4 then
-                    if unitHealth < lowestHealth then
-                        lowestHealth = unitHealth
+                if unitHealth < lowestHealth then
+                    lowestHealth = unitHealth
+                    if not UnitIsUnit("player", unit) then
                         index = i + 5
+                    end
+                    if UnitIsUnit("player", unit) then
+                        index = 50
                     end
                 end
             end
