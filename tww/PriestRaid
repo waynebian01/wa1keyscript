@@ -1,4 +1,4 @@
-local index = 0
+local index = 0 --输出指令，50代表耀
 local lowestHealth = 100
 local auraName1 = "救赎"
 local auraName2 = "恢复"
@@ -13,10 +13,10 @@ local GCD = (G.startTime > 0) and (G.startTime + G.duration - GetTime()) or 0
 local Shield = C_Spell.GetSpellCooldown(17) -- 真言术：盾
 local ShieldCD = (Shield.startTime > 0) and (Shield.startTime + Shield.duration - GetTime()) or 0
 
-local Penance = C_Spell.GetSpellCooldown(17) -- 苦修
+local Penance = C_Spell.GetSpellCooldown(47540) -- 苦修
 local PenanceCD = (Penance.startTime > 0) and (Penance.startTime + Penance.duration - GetTime()) or 0
 
-local Rapture = C_Spell.GetSpellCooldown(17) --  全神贯注
+local Rapture = C_Spell.GetSpellCooldown(47536) --  全神贯注
 local RaptureCD = (Rapture.startTime > 0) and (Rapture.startTime + Rapture.duration - GetTime()) or 0
 
 -- 检测技能充能
@@ -27,8 +27,8 @@ local function hasAura(unit, auraName)
     for j = 1, 40 do
         local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
         if not auraData then break end
-        if (auraData.name == auraID and auraData.sourceUnit == "player") or
-            (auraData.name == auraName) then
+        if (auraData.name == auraName and auraData.sourceUnit == "player") or
+            (auraData.name == SpiritofRedemption) then
             return true
         end
     end
@@ -36,8 +36,10 @@ local function hasAura(unit, auraName)
 end
 
 local teammateCount = 0
+local RenewCount = 0
 local ninetyCount = 0
 local setCount = 0
+local noRedemptionCount = 0
 
 if UnitPlayerOrPetInRaid("player") then
     for i = 1, 40 do
@@ -47,7 +49,7 @@ if UnitPlayerOrPetInRaid("player") then
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100
             local hasAura1 = hasAura(unit, auraName1)
             local hasAura2 = hasAura(unit, auraName2)
-            local hasAura2 = hasAura(unit, auraName3)
+            local hasAura3 = hasAura(unit, auraName3)
 
             if teammateCount > 1 and teammateCount <= 5 then
                 setCount = 2
@@ -59,22 +61,32 @@ if UnitPlayerOrPetInRaid("player") then
                 setCount = 5
             end
 
-            if unitHealth < 95 then
-                ninetyCount = ninetyCount + 1
+            if not hasAura1 and unitHealth < 90 then --无救赎单位数量
+                noRedemptionCount = noRedemptionCount + 1
             end
 
-            -- 如果低血量单位超过setCount个且耀充能充足
-            if ninetyCount >= setCount and ShineCharges >= 2 then
+            -- 如果无救赎生命值低于95%的单位超过setCount个且耀充能充足
+            if noRedemptionCount >= setCount and ShineCharges >= 1 then
                 index = 50
             end
 
+            if hasAura2 then --统计恢复数量
+                RenewCount = RenewCount + 1
+            end
+
+            if not hasAura1 then
+                if unitHealth < lowestHealth then
+                    lowestHealth = unitHealth
+                    index = i + 5
+                end
+            end
         end
     end
 elseif UnitPlayerOrPetInParty("player") then
     for i = 1, 4 do
         local unit = "party" .. i
         if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
-            if not hasAura(unit, auraID, auraName) then
+            if not hasAura(unit, auraName1) then
                 local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100
                 if unitHealth < lowestHealth then
                     lowestHealth = unitHealth
@@ -83,7 +95,7 @@ elseif UnitPlayerOrPetInParty("player") then
             end
         end
     end
-    if not hasAura("player", auraID) and playerHealth < lowestHealth then
+    if not hasAura("player", auraName1) and playerHealth < lowestHealth then
         index = 1
     end
 end
