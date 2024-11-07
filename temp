@@ -1,19 +1,4 @@
-local surge = 0 -- 默认层数为0
-
-for index = 1, 40 do
-    local auraData = C_UnitAuras.GetAuraDataByIndex("player", index, "HELPFUL")
-    if auraData and auraData.spellId == 114255 then
-        surge = auraData.stackCount
-        break
-    end
+local function getCharges(spellID)
+    local Charges = C_Spell.GetSpellCharges(spellID)
+    return Charges.currentCharges
 end
-
-for index = 1, 40 do
-    local auraData = C_UnitAuras.GetAuraDataByIndex("player", index, "HELPFUL")
-    if auraData and auraData.spellId == 114255 then
-        surge = auraData.duration
-        break
-    end
-end
-
-return surge
