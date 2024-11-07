@@ -15,7 +15,6 @@
         "UnitAffectingCombat",
         "UnitIsUnit"
     ],
-    "Lua.diagnostics.disable": [
-        "unused-local"
-    ]
+
+    
 }

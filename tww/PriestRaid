@@ -1,4 +1,4 @@
-local index = 0 --输出指令，50代表耀，55代表耐力
+local index = 0 --输出指令，46代表选择敌人，50代表耀，55代表耐力
 local lowest = 0
 local lowestHealth = 100
 local auraID1 = 194384 --救赎
@@ -38,8 +38,10 @@ end
 
 local teammateCount = 0     --队友数量
 local RenewCount = 0        --恢复数量
+local setRenewCount = 4     --设定恢复阈值
 local setCount = 0          --设置施放“耀”的阈值
 local noRedemptionCount = 0 --无救赎的数量
+
 
 if UnitPlayerOrPetInRaid("player") then
     for i = 1, 40 do
@@ -79,22 +81,28 @@ if UnitPlayerOrPetInRaid("player") then
                 end
             end
 
-
-            if noRedemptionCount >= setCount and ShineCharges >= 1 then
-                if unitHealth < lowestHealth then
-                    lowestHealth = unitHealth
+            if noRedemptionCount >= setCount then
+                if ShineCharges >= 1 then
                     if not UnitIsUnit("player", unit) then
-                        index = i + 5
+                        index = lowest
                     end
                     if UnitIsUnit("player", unit) then
                         index = 50
                     end
+                elseif ShineCharges == 0 then
+                    if RaptureCD > GCD and ShieldCD > GCD and RenewCount >= setRenewCount then
+                        index = 46
+                    elseif RenewCount < setRenewCount then
+                        index = lowest
+                    end
+
                 end
-            end
 
 
-            if UnitAffectingCombat("player") and not hasAura3 then
-                index = 55
+
+                if UnitAffectingCombat("player") and not hasAura3 then
+                    index = 55
+                end
             end
         end
     end
@@ -120,10 +128,14 @@ elseif UnitPlayerOrPetInParty("player") then
     if not hasAura("player", auraName1) and playerHealth < lowestHealth then
         index = 1
     end
-
-    if UnitAffectingCombat("player") and not hasAura("player", auraName3) then
+    if UnitAffectingCombat("player") and not hasAura("player", auraName1) then
         index = 55
     end
 end
+
+if UnitAffectingCombat("player") and not hasAura("player", auraName1) then
+    index = 55
+end
+
 
 return index

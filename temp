@@ -1,11 +1,19 @@
-if UnitPlayerOrPetInRaid("player") then
-    for i = 1, 40 do
-        local unit = "raid" .. i
-        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
-            if unitHealth < lowestHealth then
-                lowestHealth = unitHealth
-                lowest = i
-            end
-        end
+local surge = 0 -- 默认层数为0
+
+for index = 1, 40 do
+    local auraData = C_UnitAuras.GetAuraDataByIndex("player", index, "HELPFUL")
+    if auraData and auraData.spellId == 114255 then
+        surge = auraData.stackCount
+        break
     end
 end
+
+for index = 1, 40 do
+    local auraData = C_UnitAuras.GetAuraDataByIndex("player", index, "HELPFUL")
+    if auraData and auraData.spellId == 114255 then
+        surge = auraData.duration
+        break
+    end
+end
+
+return surge
