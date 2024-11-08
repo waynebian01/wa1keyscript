@@ -1,0 +1,8 @@
+local index = 0
+if not UnitIsUnit("player", unit) then
+    index = 1
+end
+if UnitIsUnit("player", unit) then
+    index = 2
+end
+return index

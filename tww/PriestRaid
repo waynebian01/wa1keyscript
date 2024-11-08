@@ -89,10 +89,10 @@ if UnitPlayerOrPetInRaid("player") then
 
                     if (noRedemptionCount > 0 and noRedemptionCount < setCount) or
                         (noRedemptionCount >= setCount or RenewCount <= setRenewCount) then
-                        if not UnitIsUnit("player", unit) then
+                        if not UnitIsUnit("target", unit) then
                             index = lowest
                         end
-                        if UnitIsUnit("player", unit) then
+                        if UnitIsUnit("target", unit) then
                             if noRedemptionCount >= setCount or RenewCount <= setRenewCount then
                                 if Shine == 1 then
                                     index = 50
