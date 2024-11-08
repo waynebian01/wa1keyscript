@@ -128,13 +128,13 @@ if UnitPlayerOrPetInRaid("player") then
     end
 elseif UnitPlayerOrPetInParty("player") then
     for i = 1, 4 do
-        local unit = "party" .. i
+        local unit = "party" .. i       
         if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100 --单位生命值
             local hasAura1 = hasAura(unit, auraID1)                         --救赎
             local hasAura3 = hasAura(unit, nil, auraName1)                  --韧
 
-            if not hasAura1 and unitHealth < 90 then                        --计数（无救赎，生命值低于90）
+            if not hasAura1 and unitHealth < 90 then                        --计数无救赎，生命值低于90
                 noRedemptionCount = noRedemptionCount + 1
             end
 
