@@ -206,7 +206,25 @@ elseif UnitPlayerOrPetInParty("player") then
         end
     end
 elseif not UnitPlayerOrPetInParty("player") then
-    local unit = "player"
+    local PlayerhasAura1 = hasAura("player", auraID1) --玩家救赎
+    local hasAura3 = hasAura("player", auraID3)       --圣光涌动
+    if combat then
+        if not PlayerhasAura1 and playerHealth < 90 then
+            if Shield <= GCD then
+                index = 61
+            elseif Rapture <= GCD then
+                index = 66
+            elseif hasAura3 then
+                index = 71
+            elseif RenewCount < setRenewCount then
+                index = 76
+            end
+        else
+            if targetcanattack then
+                index = 56
+            end
+        end
+    end
 end
 
 return index

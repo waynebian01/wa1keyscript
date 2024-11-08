@@ -1,0 +1,34 @@
+local index = 0
+local ImprovedPurify = IsPlayerSpell(390632)
+
+local function hasMagicDebuff(unit)
+    for i = 1, 40 do
+        local debuffData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
+        if not debuffData then break end
+        if debuffData.dispelName == "Magic" then
+            return true
+        end
+    end
+    return false
+end
+
+local function hasDiseaseDebuff(unit)
+    for i = 1, 40 do
+        local debuffData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
+        if not debuffData then break end
+        if debuffData.dispelName == "Disease" then
+            return true
+        end
+    end
+    return false
+end
+
+-- 检查鼠标指向的单位
+local unit = "mouseover"
+if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitInRange(unit) and UnitCanAssist("player", unit) then
+    if hasMagicDebuff(unit) or (ImprovedPurify and hasDiseaseDebuff(unit)) then
+        index = 1
+    end
+end
+
+return index

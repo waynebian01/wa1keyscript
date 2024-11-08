@@ -1,0 +1,60 @@
+local index = 0
+local hasdebuff = 0
+local debuffcount = 0
+local auraID = 194384
+
+local debuffs = {
+    "虚空裂隙", "暗影烈焰笼罩", "暮光烈焰", "熵能诅咒", "深渊腐蚀",
+    "虚空感染", "结晶喷发", "不稳定的爆炸", "虚空腐蚀",
+    "过度生长", "排斥", "不稳定的酸液", "钉刺突袭",
+    "虚空奔袭", "贪婪之虫", "腐化附层", "捻接",
+    "暗影之幕", "折磨光束", "迸发虫茧", "诱捕暗影",
+    "艾泽里特炸药", "腐败之水",
+}
+
+local function hasDebuff(unit)
+    for _, debuff in ipairs(debuffs) do
+        for i = 1, 40 do
+            local debuffData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
+            if not debuffData then break end
+            if debuffData.name == debuff then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function hasAura(unit)
+    for i = 1, 40 do
+        local buffData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL")
+        if not buffData then break end
+        if buffData.spellId == auraID then
+            return true
+        end
+    end
+    return false
+end
+
+if hasDebuff("player") and not hasAura("player") then
+    debuffcount = debuffcount + 1
+    hasdebuff = 1
+end
+
+for i = 1, 4 do
+    local unit = "party" .. i
+    if UnitExists(unit) and not UnitIsDeadOrGhost(unit) then
+        if hasDebuff(unit) and not hasAura(unit) then
+            debuffcount = debuffcount + 1
+            hasdebuff = i + 1
+        end
+    end
+end
+
+if debuffcount >= 2 then
+    index = 50
+else
+    index = hasdebuff
+end
+
+return index

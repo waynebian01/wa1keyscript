@@ -14,7 +14,8 @@
         "UnitGroupRolesAssigned",
         "UnitAffectingCombat",
         "UnitIsUnit",
-        "UnitCanAttack"
+        "UnitCanAttack",
+        "IsPlayerSpell"
     ],
 
     
