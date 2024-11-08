@@ -1,103 +1,28 @@
-local index = 0 --输出指令,46代表选择敌人,50代表耀,51代表盾,52代表全神贯注,53代表快速治疗,54代表恢复,55代表耐力
-local lowest = 0
-local lowestHealth = 90
-local auraID1 = 194384 --救赎
-local auraID2 = 139    --恢复
-local auraID3 = 114255 --圣光涌动
-local auraName1 = "真言术：韧"
-local auraName2 = "救赎之魂"
-local playerHealth = UnitHealth("player") / UnitHealthMax("player") * 100
+if combat then
+    if noRedemptionCount > 0 then
+        local indexMapping = {
+            [1] = {61, 66, 71, 76},  -- 对应lowest == 1的index
+            [2] = {62, 67, 72, 77},  -- 对应lowest == 2的index
+            [3] = {63, 68, 73, 78},  -- 对应lowest == 3的index
+            [4] = {64, 69, 74, 79},  -- 对应lowest == 4的index
+            [5] = {65, 70, 75, 80},  -- 对应lowest == 5的index
+        }
 
--- 获取技能冷却时间的函数
-local function getCooldown(spellID)
-    local cooldown = C_Spell.GetSpellCooldown(spellID)
-    return (cooldown.startTime > 0) and (cooldown.startTime + cooldown.duration - GetTime()) or 0
-end
---获取技能充能层数的函数
-local function getCharges(spellID)
-    local charges = C_Spell.GetSpellCharges(spellID)
-    return charges and charges.currentCharges or 0 -- 如果没有充能信息,则返回 0
-end
-
---获取单位光环的函数
-local function hasAura(unit, auraID, auraName)
-    for j = 1, 40 do
-        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
-        if not auraData then break end
-        if (auraData.spellId == auraID and auraData.sourceUnit == "player") or
-            (auraData.name == auraName) then
-            return true
+        -- 根据条件选择哪个组的index
+        local indexGroup
+        if Shield <= GCD then
+            indexGroup = 1  -- 使用第一个数组（与Shield相关）
+        elseif Rapture < GCD then
+            indexGroup = 2  -- 使用第二个数组（与Rapture相关）
+        elseif hasAura3 then
+            indexGroup = 3  -- 使用第三个数组（有圣光涌动）
+        else
+            indexGroup = 4  -- 使用第四个数组（默认情况）
         end
-    end
-    return false
-end
 
--- 检查技能冷却
-local GCD = getCooldown(61304)     -- 公共冷却
-local Shield = getCooldown(17)     -- 真言术：盾
-local Penance = getCooldown(47540) -- 苦修
-local Rapture = getCooldown(47536) -- 全神贯注
--- 检测技能充能
-local Shine = getCharges(194509)   --真言术：耀
-
-local teammateCount = 0            --队友数量
-local RenewCount = 0               --恢复数量
-local setRenewCount = 4            --设定恢复阈值
-local setCount = 0                 --设置施放“耀”的阈值
-local noRedemptionCount = 0        --无救赎的数量
-local combat = UnitAffectingCombat("player")
-
-if UnitPlayerOrPetInRaid("player") then
-    for i = 1, 40 do
-        local unit = "raid" .. i
-        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
-            teammateCount = teammateCount + 1                               --计数队友数量
-            local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100 --单位生命值
-            local hasAura1 = hasAura(unit, auraID1)                         --救赎
-            local hasAura2 = hasAura(unit, auraID2)                         --恢复
-            local hasAura3 = hasAura(unit, auraID3)                         --圣光涌动
-            local hasAura4 = hasAura(unit, nil, auraName1)                  --韧
-            local hasAura5 = hasAura(unit, nil, auraName2)                  --天使
-
-            if teammateCount > 1 then                                       --根据队友数量决定是否施放耀
-                if teammateCount <= 5 then
-                    setCount = 2
-                elseif teammateCount <= 10 then
-                    setCount = 3
-                elseif teammateCount <= 15 then
-                    setCount = 4
-                else
-                    setCount = 5
-                end
-            end
-
-            if hasAura2 then --统计恢复数量
-                RenewCount = RenewCount + 1
-            end
-            if not hasAura1 and unitHealth < 90 then --统计无救赎的数量
-                noRedemptionCount = noRedemptionCount + 1
-            end
-
-            if unitHealth < lowestHealth then
-                if not hasAura1 or not hasAura5 then
-                    lowestHealth = unitHealth
-                    lowest = i
-                end
-            end
-
-            if (noRedemptionCount > 0 and noRedemptionCount < setCount) or
-                (noRedemptionCount >= setCount and RenewCount <= setRenewCount) then
-                if not UnitIsUnit("target", unit) then
-                    index = lowest
-                end
-                if UnitIsUnit("target", unit) then
-                    index = 124
-                end
-            else
-                index = 46
-            end
+        -- 如果找到对应的index组，并且有对应的lowest值，更新index
+        if indexGroup then
+            index = indexMapping[lowest] and indexMapping[lowest][indexGroup] or index
         end
     end
 end
-
-return index

@@ -13,7 +13,8 @@
         "GetTime",
         "UnitGroupRolesAssigned",
         "UnitAffectingCombat",
-        "UnitIsUnit"
+        "UnitIsUnit",
+        "UnitCanAttack"
     ],
 
     

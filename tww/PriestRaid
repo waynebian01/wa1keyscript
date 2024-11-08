@@ -1,6 +1,7 @@
 local index = 0 --输出指令,46代表选择敌人,50代表耀,51代表盾,52代表全神贯注,53代表快速治疗,54代表恢复,55代表耐力
 local lowest = 0
 local lowestHealth = 100
+local tank = 0
 local auraID1 = 194384 --救赎
 local auraID2 = 139    --恢复
 local auraID3 = 114255 --圣光涌动
@@ -46,6 +47,8 @@ local setRenewCount = 4            --设定恢复阈值
 local setCount = 0                 --设置施放“耀”的阈值
 local noRedemptionCount = 0        --无救赎的数量
 local combat = UnitAffectingCombat("player")
+local targetcanattack = UnitCanAttack("player", "target")
+
 
 if UnitPlayerOrPetInRaid("player") then
     for i = 1, 40 do
@@ -88,7 +91,7 @@ if UnitPlayerOrPetInRaid("player") then
                 if (noRedemptionCount > 0 and noRedemptionCount < setCount) or
                     (noRedemptionCount >= setCount and RenewCount <= setRenewCount) then
                     if not UnitIsUnit("target", "raid" .. lowest) then
-                        index = lowest
+                        index = lowest + 5
                     end
                     if UnitIsUnit("target", "raid" .. lowest) then
                         if noRedemptionCount >= setCount then
@@ -118,11 +121,17 @@ if UnitPlayerOrPetInRaid("player") then
                         end
                     end
                 else
-                    index = 46
+                    if targetcanattack then
+                        index = 56
+                    else
+                        index = 46
+                    end
                 end
             end
-            if not combat and not hasAura4 then
-                index = 55
+            if not combat then
+                if not hasAura4 then
+                    index = 55
+                end
             end
         end
     end
@@ -131,29 +140,84 @@ elseif UnitPlayerOrPetInParty("player") then
         local unit = "party" .. i
         if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100 --单位生命值
-            local hasAura1 = hasAura(unit, auraID1)                         --救赎
-            local hasAura2 = hasAura(unit, auraID2)                         --恢复
+            local hasAura1 = hasAura(unit, auraID1)                         --队友救赎
             local hasAura3 = hasAura(unit, auraID3)                         --圣光涌动
             local hasAura4 = hasAura(unit, nil, auraName1)                  --韧
+            local PlayerhasAura1 = hasAura("player", auraID1)               --玩家救赎
+            local istank = UnitGroupRolesAssigned(unit) == "TANK"
 
-            if not hasAura1 and unitHealth < 90 then                        --计数无救赎,生命值低于90
-                noRedemptionCount = noRedemptionCount + 1
+            if istank and not hasAura1 then
+                tank = i + 1
             end
-
-            if not hasAura1 then        --无救赎
-                if unitHealth < 90 then --生命值低于90
-                    noRedemptionCount = noRedemptionCount + 1
+            if not hasAura1 then                              --无救赎
+                if unitHealth < 90 then                       --生命值低于90
+                    noRedemptionCount = noRedemptionCount + 1 --无救赎的数量
                 end
-
-                if unitHealth < lowestHealth then --最低生命值和单位ID
+                if unitHealth < lowestHealth then             --最低生命值和单位ID
                     lowestHealth = unitHealth
                     lowest = i + 1
+                end
+            end
+            if not PlayerhasAura1 then
+                if playerHealth < 90 then
+                    noRedemptionCount = noRedemptionCount + 1
+                end
+                if playerHealth < lowestHealth then
+                    lowest = 1
+                end
+            end
+
+            if not combat then
+                if not hasAura4 or not hasAura("player", nil, auraName1) then
+                    index = 55
+                end
+            end
+
+
+            if noRedemptionCount > 0 then
+                local indexMapping = {
+                    [1] = { 61, 66, 71, 76 },
+                    [2] = { 62, 67, 72, 77 },
+                    [3] = { 63, 68, 73, 78 },
+                    [4] = { 64, 69, 74, 79 },
+                    [5] = { 65, 70, 75, 80 },
+                }
+
+                local indexGroup
+                if Shield <= GCD then
+                    indexGroup = 1
+                elseif Rapture <= GCD then
+                    indexGroup = 2
+                elseif hasAura3 then
+                    indexGroup = 3
+                else
+                    indexGroup = 4
+                end
+
+                if indexGroup then
+                    index = indexMapping[lowest] and indexMapping[lowest][indexGroup] or index
                 end
             end
         end
     end
 elseif not UnitPlayerOrPetInParty("player") then
-    local unit = "player"
+    local PlayerhasAura1 = hasAura("player", auraID1) --玩家救赎
+    local hasAura3 = hasAura("player", auraID3)       --圣光涌动
+    if combat then
+        if not PlayerhasAura1 and playerHealth < 90 then
+            if Shield <= GCD then
+                index = 61
+            elseif Rapture <= GCD then
+                index = 66
+            elseif hasAura3 then
+                index = 71
+            elseif RenewCount < setRenewCount then
+                index = 76
+            end
+        else
+            index = 56
+        end
+    end
 end
 
 return index
