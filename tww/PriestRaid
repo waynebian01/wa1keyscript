@@ -1,4 +1,4 @@
-local index = 0 --输出指令，46代表选择敌人，50代表耀，51代表盾，52代表全神贯注，53代表快速治疗，55代表耐力
+local index = 0 --输出指令，46代表选择敌人，50代表耀，51代表盾，52代表全神贯注，53代表快速治疗，54代表恢复，55代表耐力
 local lowest = 0
 local lowestHealth = 100
 local auraID1 = 194384 --救赎
@@ -55,11 +55,12 @@ if UnitPlayerOrPetInRaid("player") then
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100 --单位生命值
             local hasAura1 = hasAura(unit, auraID1)                         --救赎
             local hasAura2 = hasAura(unit, auraID2)                         --恢复
-            local hasAura3 = hasAura(unit, auraName1)                       --韧
-            local hasAura4 = hasAura(unit, auraName2)                       --天使
+            local hasAura3 = hasAura(unit, auraID3)                         --圣光涌动
+            local hasAura4 = hasAura(unit, nil, auraName1)                  --韧
+            local hasAura5 = hasAura(unit, nil, auraName2)                  --天使
 
-            --根据队友数量决定是否施放耀
-            if teammateCount > 1 then
+
+            if teammateCount > 1 then --根据队友数量决定是否施放耀
                 if teammateCount <= 5 then
                     setCount = 2
                 elseif teammateCount <= 10 then
@@ -70,7 +71,9 @@ if UnitPlayerOrPetInRaid("player") then
                     setCount = 5
                 end
             end
-
+            if not UnitAffectingCombat("player") and not hasAura4 then --不在战斗中和没有耐力光环
+                index = 55
+            end
             if hasAura2 then --统计恢复数量
                 RenewCount = RenewCount + 1
             end
@@ -78,69 +81,48 @@ if UnitPlayerOrPetInRaid("player") then
                 noRedemptionCount = noRedemptionCount + 1
             end
 
-            if not hasAura1 and not hasAura4 then --无救赎的最低生命值和单位ID
+            if not hasAura1 and not hasAura5 then --无救赎的最低生命值和单位ID
                 if unitHealth < lowestHealth then
                     lowestHealth = unitHealth
                     lowest = i + 5
-                    local UIU = UnitIsUnit("player", lowest)
-                    if noRedemptionCount >= setCount then
-                        if Shine >= 1 then
-                            if UIU then
-                                index = 50
-                            else
-                                index = lowest
-                            end
-                        elseif Shine == 0 then
-                            if Rapture > GCD and Shield > GCD and not hasSurge and RenewCount >= setRenewCount then
-                                index = 46
-                            elseif Shield < GCD then
-                                if UIU then
-                                    index = 51
-                                else
-                                    index = lowest
-                                end
+
+                    if not UnitIsUnit("player", unit) then
+                        index = lowest
+                    end
+
+
+                    if UnitIsUnit("player", unit) then
+                        if noRedemptionCount >= setCount and Shine >= 1 then
+                            index = 50
+                        end
+
+                        if noRedemptionCount < setCount or Shine == 0 then
+                            if Shield < GCD then
+                                index = 51
                             elseif Rapture < GCD then
-                                if UIU then
-                                    index = 52
-                                else
-                                    index = lowest
-                                end
+                                index = 52
                             elseif hasSurge then
-                                if UIU then
-                                    index = 53
-                                else
-                                    index = lowest
-                                end
+                                index = 53
+                            elseif RenewCount < setRenewCount then
+                                index = 54
                             end
                         end
+
                     end
                     if noRedemptionCount < setCount and noRedemptionCount > 0 then
                         if Rapture > GCD and Shield > GCD and not hasSurge and RenewCount >= setRenewCount then
                             index = 46
                         elseif Shield < GCD then
-                            if UIU then
-                                index = 51
-                            else
-                                index = lowest
-                            end
+                            index = UIU and 51 or lowest
                         elseif Rapture < GCD then
-                            if UIU then
-                                index = 52
-                            else
-                                index = lowest
-                            end
+                            index = UIU and 52 or lowest
                         elseif hasSurge then
-                            if UIU then
-                                index = 53
-                            else
-                                index = lowest
-                            end
+                            index = UIU and 53 or lowest
+                        elseif RenewCount < setRenewCount then
+                            index = UIU and 54 or lowest
                         end
                     end
                 end
-            end
-            if UnitAffectingCombat("player") and not hasAura3 then --不在战斗中和没有耐力光环
-                index = 55
             end
         end
     end
@@ -150,7 +132,7 @@ elseif UnitPlayerOrPetInParty("player") then
         if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100 --单位生命值
             local hasAura1 = hasAura(unit, auraID1)                         --救赎
-            local hasAura3 = hasAura(unit, auraName1)                       --韧
+            local hasAura3 = hasAura(unit, nil, auraName1)                  --韧
 
             if not hasAura1 and unitHealth < 90 then                        --计数（无救赎，生命值低于90）
                 noRedemptionCount = noRedemptionCount + 1
@@ -162,17 +144,12 @@ elseif UnitPlayerOrPetInParty("player") then
             end
         end
     end
-
-    if not hasAura("player", auraName1) and playerHealth < lowestHealth then
-        index = 1
-    end
-    if UnitAffectingCombat("player") and not hasAura("player", auraName1) then
+elseif not UnitPlayerOrPetInParty("player") then
+    local unit = "player"
+    local hasAura3 = hasAura(unit, nil, auraName1)
+    if not UnitAffectingCombat("player") and not hasAura3 then
         index = 55
     end
-end
-
-if UnitAffectingCombat("player") and not hasAura("player", auraName1) then
-    index = 55
 end
 
 return index

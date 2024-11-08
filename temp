@@ -1,6 +1,0 @@
-local function getCharges(spellID)
-    local charges = C_Spell.GetSpellCharges(spellID)
-    return charges and charges.currentCharges or 0 -- 如果没有充能信息，则返回 0
-end
-
-local shine = getCharges(194509)
