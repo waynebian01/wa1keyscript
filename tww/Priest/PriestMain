@@ -19,6 +19,18 @@ local function getCharges(spellID)
     local charges = C_Spell.GetSpellCharges(spellID)
     return charges and charges.currentCharges or 0 -- 如果没有充能信息,则返回 0
 end
+-- 检查玩家是否正在施放特定法术的函数
+local function isCastingSpell(spellID)
+    local spellName = GetSpellInfo(spellID)
+    local castingSpellName, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
+    local channelingSpellName, _, _, _, _, _, _, _ = UnitChannelInfo("player")
+
+    if castingSpellName == spellName or channelingSpellName == spellName then
+        return true
+    else
+        return false
+    end
+end
 
 --获取单位光环的函数
 local function hasAura(unit, auraID, auraName)
@@ -74,8 +86,8 @@ if UnitPlayerOrPetInRaid("player") then
 
             if hasAura2 then RenewCount = RenewCount + 1 end --统计恢复数量
 
-            if not hasAura1 and not hasAura4 then --无救赎无天使
-                if unitHealth < 90 then           --统计生命值低于90数量
+            if not hasAura1 and not hasAura4 then            --无救赎无天使
+                if unitHealth < 90 then                      --统计生命值低于90数量
                     noRedemptionCount = noRedemptionCount + 1
                 end
                 if unitHealth < lowestHealth then --最低生命值和生命值最低单位ID
@@ -139,13 +151,12 @@ elseif UnitPlayerOrPetInParty("player") then
         if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100 --单位生命值
             local hasAura1 = hasAura(unit, auraID1)                         --队友救赎
-
-            local hasAura4 = hasAura(unit, nil, auraName1)                  --韧
+            local hasAura2 = hasAura(unit, nil, auraName1)                  --韧
             local PlayerhasAura1 = hasAura("player", auraID1)               --玩家救赎
             local istank = UnitGroupRolesAssigned(unit) == "TANK"
             local reallowestHealth = 100
             local reallowest = 0
-
+            local isCastShine = isCastingSpell(194509)
             if istank and not hasAura1 then
                 tank = i + 1
             end
@@ -180,7 +191,7 @@ elseif UnitPlayerOrPetInParty("player") then
                 if tank > 1 and Shield <= GCD then
                     index = tank + 60
                 end
-                if not hasAura4 or not hasAura("player", nil, auraName1) then
+                if not hasAura2 or not hasAura("player", nil, auraName1) then
                     index = 55
                 end
                 if reallowestHealth < 70 then
@@ -191,7 +202,12 @@ elseif UnitPlayerOrPetInParty("player") then
             end
 
             if combat then
-                if noRedemptionCount > 0 then
+                if noRedemptionCount >= 2 and not isCastShine then
+                    if Shine > 0 then
+                        index = 50
+                    end
+                end
+                if noRedemptionCount == 1 or Shine == 0 then
                     local indexMapping = {
                         [1] = { 61, 66, 71, 76 },
                         [2] = { 62, 67, 72, 77 },
@@ -215,7 +231,7 @@ elseif UnitPlayerOrPetInParty("player") then
                         index = indexMapping[lowest] and indexMapping[lowest][indexGroup] or index
                     end
                 end
-                if noRedemptionCount == 0 and targetcanattack and targetisalive then
+                if (noRedemptionCount == 0 or isCastShine) and targetcanattack and targetisalive then
                     index = 56
                 end
             end
