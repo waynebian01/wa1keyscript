@@ -1,0 +1,107 @@
+local index = 0
+local lowest = 0
+local nodoubleauralowest = 0
+local lowestHealth = 100
+local auraName1 = "回春术" -- 光环回春术
+local auraName2 = "回春术（萌芽）" -- 光环回春术（萌芽）
+local auraName3 = "生命绽放"
+local auraName4 = "救赎之魂"
+
+
+-- 获取技能冷却时间的函数
+local function getCooldown(spellID)
+    local cooldown = C_Spell.GetSpellCooldown(spellID)
+    return (cooldown.startTime > 0) and (cooldown.startTime + cooldown.duration - GetTime()) or 0
+end
+--获取技能充能层数的函数
+local function getCharges(spellID)
+    local charges = C_Spell.GetSpellCharges(spellID)
+    return charges and charges.currentCharges or 0 -- 如果没有充能信息,则返回 0
+end
+
+-- 检查光环的函数
+local function hasAura(unit, auraName, onlyPlayerCast)
+    for j = 1, 40 do
+        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
+        if not auraData then break end
+        if auraData.name == auraName then
+            if onlyPlayerCast then
+                return auraData.sourceUnit == "player"
+            else
+                return true
+            end
+        end
+    end
+    return false
+end
+
+--检查技能冷却
+local GCD = getCooldown(61304) -- 真言术：盾
+local Flourish = getCooldown(48438)
+--检测技能充能
+local Swiftmend = getCharges(18562)
+local Grove = getCharges(102693)
+
+
+local teammateCount = 0
+local ninetyCount = 0
+local eightyCount = 0
+local setCount = 0
+local combat = UnitAffectingCombat("player")              --玩家是否在战斗
+local targetcanattack = UnitCanAttack("player", "target") --玩家当前目标是否可以攻击
+local targetisalive = not UnitIsDeadOrGhost("target")     --玩家当前目标是否存活
+
+if UnitPlayerOrPetInRaid("player") then
+    for i = 1, 40 do
+        local unit = "raid" .. i
+        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
+            teammateCount = teammateCount + 1
+            local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100
+            local hasAura1 = hasAura(unit, auraName1, true)  --回春
+            local hasAura2 = hasAura(unit, auraName2, true)  --萌芽
+            local hasAura3 = hasAura(unit, auraName3, true)  --绽放
+            local hasAura4 = hasAura(unit, auraName4, false) --天使
+
+            if teammateCount > 1 and teammateCount <= 5 then
+                setCount = 2
+            elseif teammateCount <= 10 then
+                setCount = 3
+            elseif teammateCount <= 15 then
+                setCount = 4
+            else
+                setCount = 5
+            end
+
+            if unitHealth < lowestHealth then     --最低生命值和生命值最低单位ID
+                lowestHealth = unitHealth
+                lowest = i + 5
+            end
+
+            if not hasAura1 and not hasAura2 and not hasAura4 then     --无回春，无萌芽，无天使
+            end
+
+            -- 统计低于设定值生命值的单位数量
+            if unitHealth < 90 then
+                ninetyCount = ninetyCount + 1
+            end
+            if unitHealth < 80 then
+                eightyCount = eightyCount + 1
+            end
+
+            -- 如果低血量单位超过setCount个且树人充能充足
+            if eightyCount >= setCount and Grove >= 2 then
+                index = 50
+            end
+
+            if ninetyCount >= setCount then
+                if Grove >= 3 then
+                    index = 50 -- 放树人
+                elseif Flourish <= GCD then
+                    index = 51 -- 放成长
+                end
+            end
+        end
+    end
+end
+
+return index

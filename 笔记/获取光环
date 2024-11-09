@@ -1,0 +1,64 @@
+-- 获取单位的光环层数
+local function getAuraStacks(unit, auraName)
+    for i = 1, 40 do
+        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i)
+        if auraData and auraData.name == auraName then
+            return auraData.applications -- 这里返回光环的层数（stacks）
+        end
+    end
+    return 0 -- 如果找不到指定的光环，返回0
+end
+
+-- 使用示例
+local stacks = getAuraStacks("player", "Rune of Power")
+
+
+--获取单位光环的函数
+local function hasAura(unit, auraID, auraName)
+    for j = 1, 40 do
+        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
+        if not auraData then break end
+        if (auraData.spellId == auraID and auraData.sourceUnit == "player") or
+            (auraData.name == auraName) then
+            return true
+        end
+    end
+    return false
+end
+
+local hasAura1 = hasAura("player", 194384, "救赎")
+
+--aura = C_UnitAuras.GetAuraDataByIndex(unitToken, index [, filter])
+Filters
+Filter	Description
+"HELPFUL"	            Buffs
+"HARMFUL"	            Debuffs
+"PLAYER"	            Auras Debuffs applied by the player
+"RAID"	                Buffs the player can apply and debuffs the player can dispell
+"CANCELABLE"	        Buffs that can be cancelled with /cancelaura or CancelUnitBuff()
+"NOT_CANCELABLE"    	Buffs that cannot be cancelled
+"INCLUDE_NAME_PLATE_ONLY"	Auras that should be shown on nameplates
+
+--applications	        number	    
+--auraInstanceID	    number	
+--canApplyAura	        boolean	    Whether or not the player can apply this aura.
+--charges	            number	
+--dispelName	        string?	
+--duration	            number	
+--expirationTime	    number	
+--icon              	number	
+--isBossAura	        boolean	    Whether or not this aura was applied by a boss.
+--isFromPlayerOrPlayerPet boolean	Whether or not this aura was applied by a player or their pet.
+--isHarmful	            boolean	    Whether or not this aura is a debuff.
+--isHelpful	            boolean	    Whether or not this aura is a buff.
+--isNameplateOnly	    boolean 	Whether or not this aura should appear on nameplates.
+--isRaid	            boolean	    Whether or not this aura meets the conditions of the RAID aura filter.
+--isStealable	        boolean	
+--maxCharges	        number	
+--name	string	        The name of the aura.
+--nameplateShowAll	    boolean 	Whether or not this aura should always be shown irrespective of any usual filtering logic.
+--nameplateShowPersonal	boolean	    True if this aura should only be shown on nameplates if it was applied by you, i.e. the caster unit id is player, pet or vehicle.
+--points	            array	    Variable returns - Some auras return additional values that typically correspond to something shown in the tooltip, such as the remaining strength of an absorption effect.	
+--sourceUnit	        string?	    Token of the unit that applied the aura.
+--spellId	            number	    The spell ID of the aura.
+--timeMod	            number	

@@ -1,28 +1,11 @@
-if combat then
-    if noRedemptionCount > 0 then
-        local indexMapping = {
-            [1] = {61, 66, 71, 76},  -- 对应lowest == 1的index
-            [2] = {62, 67, 72, 77},  -- 对应lowest == 2的index
-            [3] = {63, 68, 73, 78},  -- 对应lowest == 3的index
-            [4] = {64, 69, 74, 79},  -- 对应lowest == 4的index
-            [5] = {65, 70, 75, 80},  -- 对应lowest == 5的index
-        }
-
-        -- 根据条件选择哪个组的index
-        local indexGroup
-        if Shield <= GCD then
-            indexGroup = 1  -- 使用第一个数组（与Shield相关）
-        elseif Rapture < GCD then
-            indexGroup = 2  -- 使用第二个数组（与Rapture相关）
-        elseif hasAura3 then
-            indexGroup = 3  -- 使用第三个数组（有圣光涌动）
-        else
-            indexGroup = 4  -- 使用第四个数组（默认情况）
+-- 示例优化光环检查
+local function hasDebuff(unit)
+    local auraData = C_UnitAuras.GetAuraDataByIndex(unit, 1, "HARMFUL")
+    while auraData do
+        if tContains(debuffs, auraData.name) then
+            return true
         end
-
-        -- 如果找到对应的index组，并且有对应的lowest值，更新index
-        if indexGroup then
-            index = indexMapping[lowest] and indexMapping[lowest][indexGroup] or index
-        end
+        auraData = C_UnitAuras.GetAuraDataByIndex(unit, auraData.index + 1, "HARMFUL")
     end
+    return false
 end

@@ -50,6 +50,7 @@ local setCount = 0                 --设置施放“耀”的阈值
 local noRedemptionCount = 0        --无救赎的数量
 local combat = UnitAffectingCombat("player")
 local targetcanattack = UnitCanAttack("player", "target")
+local targetisalive = not UnitIsDeadOrGhost("target") --玩家当前目标是否存活
 
 if UnitPlayerOrPetInRaid("player") then
     for i = 1, 40 do
@@ -135,7 +136,7 @@ if UnitPlayerOrPetInRaid("player") then
                         end
                     end
                 else
-                    if targetcanattack then
+                    if targetcanattack and targetisalive then
                         index = 56
                     else
                         index = 46
@@ -231,7 +232,7 @@ elseif UnitPlayerOrPetInParty("player") then
                         index = indexMapping[lowest] and indexMapping[lowest][indexGroup] or index
                     end
                 end
-                if noRedemptionCount == 0 and targetcanattack then
+                if noRedemptionCount == 0 and targetcanattack and targetisalive then
                     index = 56
                 end
             end
@@ -239,17 +240,16 @@ elseif UnitPlayerOrPetInParty("player") then
     end
 elseif not UnitPlayerOrPetInParty("player") then
     local PlayerhasAura1 = hasAura("player", auraID1) --玩家救赎
-    local hasAura3 = hasAura("player", auraID3)       --圣光涌动
     if combat then
         if not PlayerhasAura1 and playerHealth < 90 then
             if Shield <= GCD then
                 index = 61
             end
-            if hasAura3 and playerHealth < 90 then
+            if hasSurge and playerHealth < 90 then
                 index = 71
             end
         else
-            if targetcanattack then
+            if targetcanattack and targetisalive then
                 index = 56
             end
         end

@@ -1,5 +1,5 @@
 local index = 0
-local hasdebuff = 0
+local memberWithDebuff = 0
 local debuffcount = 0
 local auraID1 = 194384 --救赎
 local auraID2 = 114255 --圣光涌动
@@ -58,12 +58,11 @@ local Shine = getCharges(194509)   --真言术：耀
 --检查玩家自身光环
 local hasSurge = hasAura("player", auraID2) --圣光涌动
 
-
 if not UnitPlayerOrPetInRaid("player") then
     local PlayerhasAura = hasAura("player", auraID1) --救赎
     if hasDebuff("player") and not PlayerhasAura then
         debuffcount = debuffcount + 1
-        hasdebuff = 1
+        memberWithDebuff = 1
     end
 
     for i = 1, 4 do
@@ -72,24 +71,24 @@ if not UnitPlayerOrPetInRaid("player") then
             local hasAura1 = hasAura(unit, auraID1) --救赎
             if hasDebuff(unit) and not hasAura1 then
                 debuffcount = debuffcount + 1
-                hasdebuff = i + 1
-            end
-
-            -- 设置 index 值
-            if debuffcount >= 2 and Shine > 0 then
-                index = 50
-            else
-                if Shield <= GCD then
-                    index = hasdebuff + 60
-                elseif Rapture <= GCD then
-                    index = hasdebuff + 65
-                elseif hasSurge then
-                    index = hasdebuff + 70
-                else
-                    index = hasdebuff + 75
-                end
+                memberWithDebuff = i + 1
             end
         end
+    end
+end
+
+-- 设置 index 值
+if debuffcount >= 2 and Shine > 0 then
+    index = 50
+else
+    if Shield <= GCD then
+        index = memberWithDebuff + 60
+    elseif Rapture <= GCD then
+        index = memberWithDebuff + 65
+    elseif hasSurge then
+        index = memberWithDebuff + 70
+    else
+        index = memberWithDebuff + 75
     end
 end
 
