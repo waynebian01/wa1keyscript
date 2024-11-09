@@ -1,7 +1,10 @@
 local index = 0
 local lowest = 0
-local nodoubleauralowest = 0
+local lowestNotwo = 0
+local lowestNoOne = 0
 local lowestHealth = 100
+local lowestNotwoHealth = 100
+local lowestNoOneHealth = 100
 local auraName1 = "回春术" -- 光环回春术
 local auraName2 = "回春术（萌芽）" -- 光环回春术（萌芽）
 local auraName3 = "生命绽放"
@@ -65,12 +68,23 @@ if UnitPlayerOrPetInRaid("player") then
             local setCount = 0
             setCount = math.min(5, math.max(2, math.floor((teammateCount + 4) / 5) + 1))
 
-            if unitHealth < lowestHealth then     --最低生命值和生命值最低单位ID
+            if unitHealth < lowestHealth then --最低生命值和生命值最低单位ID
                 lowestHealth = unitHealth
                 lowest = i + 5
             end
 
-            if not hasAura1 and not hasAura2 and not hasAura4 then     --无回春，无萌芽，无天使
+            if not hasAura1 and not hasAura2 and not hasAura4 then
+                if unitHealth < lowestHealth then
+                    lowestNotwoHealth = unitHealth
+                    lowestNotwo = i + 5
+                end
+            end
+
+            if not hasAura4 and  hasAura1 ~=  hasAura2 then
+                if unitHealth < lowestHealth then
+                    lowestNoOneHealth = unitHealth
+                    lowestNoOne = i + 5
+                end
             end
 
             -- 统计低于设定值生命值的单位数量
@@ -93,6 +107,17 @@ if UnitPlayerOrPetInRaid("player") then
                     index = 51 -- 放成长
                 end
             end
+
+            if combat then
+                if lowestNotwoHealth <= 90 then
+                    if not UnitIsUnit("target", "raid" .. lowestNotwo) then
+                        index = lowestNotwo + 5
+                    else
+                        index = 50
+                    end
+
+                end
+                    
         end
     end
 end
