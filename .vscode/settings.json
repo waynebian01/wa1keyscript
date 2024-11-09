@@ -15,7 +15,9 @@
         "UnitAffectingCombat",
         "UnitIsUnit",
         "UnitCanAttack",
-        "IsPlayerSpell"
+        "IsPlayerSpell",
+        "Prop",
+        "Cast"
     ],
 
     

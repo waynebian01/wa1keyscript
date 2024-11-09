@@ -1,0 +1,73 @@
+if Prop("坐骑") == 0 and Prop("首领技能") ~= 1 and Prop("施法") ~= 2 then
+    if Prop("绝望") == 0 and Prop("血量") < 40 then
+        Cast("19236")
+    end
+    if Prop("血量") < 30 then
+        if Prop("三星药水") > 1 or Prop("二星药水") > 1 then
+            Cast("大红")
+        end
+    end
+    if Prop("纯净") == 1 then
+        if Prop("首领技能") == 2 then
+            for i = 1, 5 do
+                if Prop("震地回响") == i then
+                    Cast("驱" .. i)
+                    break
+                end
+            end
+        end
+        if Prop("鼠标驱散") == 1 then
+            Cast("驱M")
+        end
+        for i = 1, 5 do
+            if Prop("驱散") == i then
+                Cast("驱" .. i)
+                break
+            end
+        end
+    end
+    --群疗
+    if Prop("法术") ~= 199 then
+        if Prop("AOE") == 1 then
+            Cast("耀")
+        end
+        if Prop("main") == 50 then
+            Cast("耀")
+        end
+    end
+    --队伍
+    if Prop("main") > 60 and Prop("main") <= 85 then
+        Cast(tostring(Prop("main")))
+    end
+    --团队
+    if Prop("main") >= 6 and Prop("main") <= 45 then
+        Select(Prop("main"))
+    end
+    if Prop("main") == 46 then
+        Cast("上个敌人")
+    end
+    if Prop("main") == 51 then
+        Cast("盾")
+    end
+    if Prop("main") == 52 then
+        Cast("全")
+    end
+    if Prop("main") == 53 then
+        Cast("快")
+    end
+    if Prop("main") == 54 then
+        Cast("恢")
+    end
+    --耐力
+    if Prop("main") == 55 then
+        Cast("21562")
+    end
+    --输出
+    if Prop("main") == 56 then
+        if Prop("Hekili") > 700 or Prop("Hekili") == 585 or Prop("Hekili") == 528 or Prop("Hekili") == 589 then
+            Cast(tostring(Prop("Hekili")))
+        elseif Prop("Hekili") > 100 and Prop("Hekili") < 700 and Prop("Hekili") ~= 585 and Prop("Hekili") ~= 528 and Prop("Hekili") ~= 589 then
+            Cast("饰品")
+        end
+    end
+end
