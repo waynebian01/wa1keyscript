@@ -46,7 +46,6 @@ local Grove = getCharges(102693)
 local teammateCount = 0
 local ninetyCount = 0
 local eightyCount = 0
-local setCount = 0
 local combat = UnitAffectingCombat("player")              --玩家是否在战斗
 local targetcanattack = UnitCanAttack("player", "target") --玩家当前目标是否可以攻击
 local targetisalive = not UnitIsDeadOrGhost("target")     --玩家当前目标是否存活
@@ -62,15 +61,9 @@ if UnitPlayerOrPetInRaid("player") then
             local hasAura3 = hasAura(unit, auraName3, true)  --绽放
             local hasAura4 = hasAura(unit, auraName4, false) --天使
 
-            if teammateCount > 1 and teammateCount <= 5 then
-                setCount = 2
-            elseif teammateCount <= 10 then
-                setCount = 3
-            elseif teammateCount <= 15 then
-                setCount = 4
-            else
-                setCount = 5
-            end
+            -- 根据队伍人数动态计算所需数量 (最小2，每5人+1，最大5)
+            local setCount = 0
+            setCount = math.min(5, math.max(2, math.floor((teammateCount + 4) / 5) + 1))
 
             if unitHealth < lowestHealth then     --最低生命值和生命值最低单位ID
                 lowestHealth = unitHealth
