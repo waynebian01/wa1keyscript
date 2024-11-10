@@ -1,12 +1,12 @@
-local index = 0 --输出指令,46代表选择敌人,50代表耀,51代表盾,52代表全神贯注,53代表快速治疗,54代表恢复,55代表耐力,56代表输出
+local index = 0 --输出指令,46：选择敌人,50：耀,51：盾,52：全神贯注,53：快速治疗,54：恢复,55：耐力,56：输出
 local lowest = 0
 local lowestHealth = 100
 local tank = 0
-local auraID1 = 194384 --救赎
-local auraID2 = 139    --恢复
-local auraID3 = 114255 --圣光涌动
-local auraName1 = "真言术：韧"
-local auraName2 = "救赎之魂"
+local auraName1 = "救赎"
+local auraName2 = "恢复"
+local auraName3 = "圣光涌动"
+local auraName4 = "真言术：韧"
+local auraName5 = "救赎之魂"
 local playerHealth = UnitHealth("player") / UnitHealthMax("player") * 100
 
 -- 获取技能冷却时间的函数
@@ -17,7 +17,7 @@ end
 --获取技能充能层数的函数
 local function getCharges(spellID)
     local charges = C_Spell.GetSpellCharges(spellID)
-    return charges and charges.currentCharges or 0 -- 如果没有充能信息,则返回 0
+    return charges and charges.currentCharges or 0
 end
 -- 检查玩家是否正在施放特定法术的函数
 local function isCastingSpell(spellID)
@@ -33,35 +33,40 @@ local function isCastingSpell(spellID)
 end
 
 --获取单位光环的函数
-local function hasAura(unit, auraID, auraName)
+local function hasAura(unit, auraName, onlyPlayerCast)
     for j = 1, 40 do
         local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
         if not auraData then break end
-        if (auraData.spellId == auraID and auraData.sourceUnit == "player") or
-            (auraData.name == auraName) then
-            return true
+        if auraData.name == auraName then
+            if onlyPlayerCast then
+                return auraData.sourceUnit == "player"
+            else
+                return true
+            end
         end
     end
     return false
 end
 
+local isCastShine = isCastingSpell(194509)          --正在施放真言术：耀
 -- 检查技能冷却
-local GCD = getCooldown(61304)              -- 公共冷却
-local Shield = getCooldown(17)              -- 真言术：盾
-local Penance = getCooldown(47540)          -- 苦修
-local Rapture = getCooldown(47536)          -- 全神贯注
+local GCD = getCooldown(61304)                      -- 公共冷却
+local Shield = getCooldown(17)                      -- 真言术：盾
+local Penance = getCooldown(47540)                  -- 苦修
+local Rapture = getCooldown(47536)                  -- 全神贯注
 -- 检测技能充能
-local Shine = getCharges(194509)            --真言术：耀
+local Shine = getCharges(194509)                    --真言术：耀
 --检查玩家自身光环
-local hasSurge = hasAura("player", auraID3) --圣光涌动
-
-local teammateCount = 0                     --队友数量
-local RenewCount = 0                        --恢复数量
-
-local noRedemptionCount = 0                 --无救赎的数量
-local combat = UnitAffectingCombat("player")
+local hasSurge = hasAura("player", auraName3, true) --圣光涌动
+--检测队伍信息
+local teammateCount = 0                             --队友数量
+local RenewCount = 0                                --恢复数量
+local noRedemptionCount = 0                         --无救赎的数量
+--检查目标信息
 local targetcanattack = UnitCanAttack("player", "target")
 local targetisalive = not UnitIsDeadOrGhost("target") --玩家当前目标是否存活
+--检查战斗状态
+local combat = UnitAffectingCombat("player")
 
 if UnitPlayerOrPetInRaid("player") then
     for i = 1, 40 do
@@ -69,10 +74,10 @@ if UnitPlayerOrPetInRaid("player") then
         if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
             teammateCount = teammateCount + 1                               --计数队友数量
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100 --单位生命值
-            local hasAura1 = hasAura(unit, auraID1)                         --救赎
-            local hasAura2 = hasAura(unit, auraID2)                         --恢复
-            local hasAura3 = hasAura(unit, nil, auraName1)                  --韧
-            local hasAura4 = hasAura(unit, nil, auraName2)                  --天使
+            local hasAura1 = hasAura(unit, auraName1, true)                 --救赎
+            local hasAura2 = hasAura(unit, auraName2, true)                 --恢复
+            local hasAura3 = hasAura(unit, auraName4, false)                --韧
+            local hasAura4 = hasAura(unit, auraName5, false)                --天使
 
             --根据队友数量决定施放耀的阈值，根据队伍人数动态计算所需数量 (最小2，每5人+1，最大5)
             local setCount = 0
@@ -102,7 +107,7 @@ if UnitPlayerOrPetInRaid("player") then
                         index = lowest + 5
                     end
                     if UnitIsUnit("target", "raid" .. lowest) then
-                        if not hasAura("target", auraID1) then
+                        if not hasAura("target", auraName1, true) then
                             if noRedemptionCount >= setCount then
                                 if Shine >= 1 then
                                     index = 50
@@ -150,13 +155,13 @@ elseif UnitPlayerOrPetInParty("player") then
         local unit = "party" .. i
         if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
             local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100 --单位生命值
-            local hasAura1 = hasAura(unit, auraID1)                         --队友救赎
-            local hasAura2 = hasAura(unit, nil, auraName1)                  --韧
-            local PlayerhasAura1 = hasAura("player", auraID1)               --玩家救赎
+            local hasAura1 = hasAura(unit, auraName1, true)                 --队友救赎
+            local hasAura2 = hasAura(unit, auraName4, false)                --韧
+            local PlayerhasAura1 = hasAura("player", auraName1, true)       --玩家救赎
             local istank = UnitGroupRolesAssigned(unit) == "TANK"
             local reallowestHealth = 100
             local reallowest = 0
-            local isCastShine = isCastingSpell(194509)
+
             if istank and not hasAura1 then
                 tank = i + 1
             end
@@ -191,7 +196,7 @@ elseif UnitPlayerOrPetInParty("player") then
                 if tank > 1 and Shield <= GCD then
                     index = tank + 60
                 end
-                if not hasAura2 or not hasAura("player", nil, auraName1) then
+                if not hasAura2 or not hasAura("player", auraName4, false) then
                     index = 55
                 end
                 if reallowestHealth < 70 then
@@ -238,13 +243,18 @@ elseif UnitPlayerOrPetInParty("player") then
         end
     end
 elseif not UnitPlayerOrPetInParty("player") then
-    local PlayerhasAura1 = hasAura("player", auraID1) --玩家救赎
+    local PlayerhasAura1 = hasAura("player", auraName1, true)      --玩家救赎
+    local playerhasFortitude = hasAura("player", auraName4, false) --玩家韧
+
+    if not combat and not playerhasFortitude then
+        index = 55
+    end
     if combat then
         if not PlayerhasAura1 and playerHealth < 90 then
             if Shield <= GCD then
                 index = 61
             end
-            if hasSurge and playerHealth < 90 then
+            if hasSurge and playerHealth < 80 then
                 index = 71
             end
         else

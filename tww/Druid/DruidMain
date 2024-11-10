@@ -80,7 +80,7 @@ if UnitPlayerOrPetInRaid("player") then
                 end
             end
 
-            if not hasAura4 and  hasAura1 ~=  hasAura2 then
+            if not hasAura4 and hasAura1 ~= hasAura2 then
                 if unitHealth < lowestHealth then
                     lowestNoOneHealth = unitHealth
                     lowestNoOne = i + 5
@@ -115,9 +115,8 @@ if UnitPlayerOrPetInRaid("player") then
                     else
                         index = 50
                     end
-
                 end
-                    
+            end
         end
     end
 end
