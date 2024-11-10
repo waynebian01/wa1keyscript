@@ -19,8 +19,7 @@
         "Prop",
         "Cast",
         "UnitChannelInfo",
-        "UnitCastingInfo",
-        "GetSpellInfo"
+        "UnitCastingInfo"
     ],
 
     

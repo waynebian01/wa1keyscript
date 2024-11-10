@@ -50,6 +50,7 @@ local function hasAura(unit, auraID)
 end
 
 -- 检查技能冷却
+
 local GCD = getCooldown(61304)     -- 公共冷却
 local Shield = getCooldown(17)     -- 真言术：盾
 local Rapture = getCooldown(47536) -- 全神贯注

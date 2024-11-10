@@ -21,7 +21,7 @@ local function getCharges(spellID)
 end
 -- 检查玩家是否正在施放特定法术的函数
 local function isCastingSpell(spellID)
-    local spellName = GetSpellInfo(spellID)
+    local spellName = C_Spell.GetSpellInfo(spellID)
     local castingSpellName, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
     local channelingSpellName, _, _, _, _, _, _, _ = UnitChannelInfo("player")
 
