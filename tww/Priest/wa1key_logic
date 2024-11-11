@@ -1,6 +1,11 @@
-if Prop("坐骑") == 0 and Prop("首领技能") ~= 1 and Prop("施法") ~= 2 then
-    if Prop("绝望") == 0 and Prop("血量") < 40 then
-        Cast("19236")
+if Prop("坐骑") == 0 and Prop("首领技能") ~= 6 and Prop("施法") ~= 2 then
+    if Prop("血量") <= 40 then
+        if Prop("绝望") == 0 then
+            Cast("19236")
+        end
+        if Prop("治疗石") > 0 then
+            Cast("治疗石")
+        end
     end
     if Prop("血量") < 30 then
         if Prop("三星药水") > 1 or Prop("二星药水") > 1 then
@@ -8,9 +13,9 @@ if Prop("坐骑") == 0 and Prop("首领技能") ~= 1 and Prop("施法") ~= 2 the
         end
     end
     if Prop("纯净") == 1 then
-        if Prop("首领技能") == 2 then
+        if Prop("首领技能") > 1 and Prop("首领技能") < 6 then
             for i = 1, 5 do
-                if Prop("震地回响") == i then
+                if Prop("首领技能") == i then
                     Cast("驱" .. i)
                     break
                 end

@@ -119,6 +119,16 @@ if UnitPlayerOrPetInRaid("player") then
             end
         end
     end
+elseif UnitPlayerOrPetInParty("player") then
+    for i = 1, 4 do
+        local unit = "party" .. i
+        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
+            teammateCount = teammateCount + 1
+            local unitHealth = UnitHealth(unit) / UnitHealthMax(unit) * 100
+            local hasAura1 = hasAura(unit, auraName1, true)  --回春
+            local hasAura2 = hasAura(unit, auraName2, true)  --萌芽
+            local hasAura3 = hasAura(unit, auraName3, true)  --绽放
+            
 end
 
 return index

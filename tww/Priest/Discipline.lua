@@ -222,16 +222,15 @@ elseif UnitPlayerOrPetInParty("player") then
                     }
                     --61-65盾，66-70全神贯注，71-75快速治疗，76-80恢复，80-81苦修
                     local indexGroup
-                    if Shield <= GCD then
+                    if hasSurge then
+                        indexGroup = 3
+                    elseif Shield <= GCD then
                         indexGroup = 1
                     elseif Rapture <= GCD then
                         indexGroup = 2
-                    elseif hasSurge then
-                        indexGroup = 3
                     else
                         indexGroup = 4
                     end
-
                     if indexGroup then
                         index = indexMapping[lowest] and indexMapping[lowest][indexGroup] or index
                     end

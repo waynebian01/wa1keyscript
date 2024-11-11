@@ -1,0 +1,53 @@
+local index = 0
+local auraName1 = "震地回响"
+local tank = 0
+
+local function hasAura(unit, auraName, onlyPlayerCast)
+    for j = 1, 40 do
+        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
+        if not auraData then break end
+        if auraData.name == auraName then
+            if onlyPlayerCast then
+                return auraData.sourceUnit == "player"
+            else
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function checkBossCasting()
+    for i = 1, 40 do
+        local unit = "boss" .. i
+        if UnitExists(unit) then
+            local spellName = UnitCastingInfo(unit)
+            if spellName then
+                if spellName == "黑暗降临" then
+                    return 1 -- 返回1表示施放“黑暗降临”
+                elseif spellName == "震地猛击" then
+                    return 2 -- 返回2表示施放“震地猛击”
+                end
+            end
+        end
+    end
+    return 0
+end
+
+local bossspell = checkBossCasting()
+
+for i = 1, 4 do
+    local unit = "party" .. i
+    if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and hasAura(unit, auraName1, false) then
+        tank = i + 1
+        break
+    end
+end
+
+if bossspell == 1 then
+    index = 1
+elseif bossspell == 2 and tank >= 1 then
+    index = tank
+end
+
+return index
