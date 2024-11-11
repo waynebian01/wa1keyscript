@@ -19,7 +19,8 @@
         "Prop",
         "Cast",
         "UnitChannelInfo",
-        "UnitCastingInfo"
+        "UnitCastingInfo",
+        "CreateFrame"
     ],
 
     
