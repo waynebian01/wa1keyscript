@@ -20,7 +20,8 @@
         "Cast",
         "UnitChannelInfo",
         "UnitCastingInfo",
-        "CreateFrame"
+        "CreateFrame",
+        "GetUnitSpeed"
     ],
 
     
