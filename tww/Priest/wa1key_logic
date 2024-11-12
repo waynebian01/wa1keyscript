@@ -36,11 +36,17 @@ if Prop("坐骑") == 0 and Prop("首领技能") ~= 6 and Prop("施法") ~= 2 the
         if Prop("AOE") == 1 then
             Cast("耀")
         end
+        if Prop("大米光环") == 50 then
+            Cast("耀")
+        end
         if Prop("main") == 50 then
             Cast("耀")
         end
     end
     --队伍
+    if Prop("大米光环") > 60 and Prop("大米光环") <= 80 then
+        Cast(tostring(Prop("大米光环")))
+    end
     if Prop("main") > 60 and Prop("main") <= 85 then
         Cast(tostring(Prop("main")))
     end

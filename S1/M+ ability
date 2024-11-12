@@ -50,44 +50,59 @@ local function hasAura(unit, auraID)
 end
 
 -- 检查技能冷却
-local GCD = getCooldown(61304)                       -- 公共冷却
-local Shield = getCooldown(17)                       -- 真言术：盾
-local Rapture = getCooldown(47536)                   -- 全神贯注
+local GCD = getCooldown(61304)                   -- 公共冷却
+local Shield = getCooldown(17)                   -- 真言术：盾
+local Rapture = getCooldown(47536)               -- 全神贯注
 -- 检测技能充能
-local Shine = getCharges(194509)                     --真言术：耀
+local Shine = getCharges(194509)                 --真言术：耀
 --检查玩家自身光环
-local hasSurge = hasAura("player", auraID2)          --圣光涌动
-local PlayerhasAura = hasAura("player", auraID1)     --救赎
+local hasSurge = hasAura("player", auraID2)      --圣光涌动
+local PlayerhasAura = hasAura("player", auraID1) --救赎
 
-if hasDebuff("player") and not PlayerhasAura then
-    debuffcount = debuffcount + 1
-    memberWithDebuff = 1
-end
 
-for i = 1, 4 do
-    local unit = "party" .. i
-    if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
-        local hasAura1 = hasAura(unit, auraID1)     --救赎
-        local hasdebuff = hasDebuff(unit)
-        if hasdebuff and not hasAura1 then
-            debuffcount = debuffcount + 1
-            memberWithDebuff = i + 1
+
+if not UnitPlayerOrPetInRaid("player") then
+    for i = 1, 4 do
+        local unit = "party" .. i
+        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
+            local hasAura1 = hasAura(unit, auraID1) --救赎
+            local hasdebuff = hasDebuff(unit)
+            if hasdebuff and not hasAura1 then
+                debuffcount = debuffcount + 1
+                memberWithDebuff = i + 1
+            end
         end
+    end
+    if hasDebuff("player") and not PlayerhasAura then
+        debuffcount = debuffcount + 1
+        memberWithDebuff = 1
     end
 end
 
 -- 设置 index 值
 if debuffcount >= 2 and Shine > 0 then
     index = 50
-else
+elseif debuffcount == 1 or Shine == 0 then
+    local indexMapping = {
+        [1] = {61, 66, 71, 76},
+        [2] = {62, 67, 72, 77},
+        [3] = {63, 68, 73, 78},
+        [4] = {64, 69, 74, 79},
+        [5] = {65, 70, 75, 80},
+    }
+    --61-65盾，66-70全神贯注，71-75快速治疗，76-80恢复，80-81苦修
+    local indexGroup
     if hasSurge then
-        index = memberWithDebuff + 70
+        indexGroup = 3
     elseif Shield <= GCD then
-        index = memberWithDebuff + 60
+        indexGroup = 1
     elseif Rapture <= GCD then
-        index = memberWithDebuff + 65
+        indexGroup = 2
     else
-        index = memberWithDebuff + 75
+        indexGroup = 4
+    end
+    if indexGroup then
+        index = indexMapping[memberWithDebuff] and indexMapping[memberWithDebuff][indexGroup] or index
     end
 end
 
