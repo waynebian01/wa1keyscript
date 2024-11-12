@@ -7,7 +7,6 @@ local auraName2 = "恢复"
 local auraName3 = "圣光涌动"
 local auraName4 = "真言术：韧"
 local auraName5 = "救赎之魂"
-local auraName6 = "微风"
 local playerHealth = UnitHealth("player") / UnitHealthMax("player") * 100
 local ismoving = GetUnitSpeed("player") > 0               --检查玩家是否移动
 local combat = UnitAffectingCombat("player")              --检查战斗状态
@@ -64,14 +63,11 @@ local Rapture = getCooldown(47536)                  -- 全神贯注
 local Shine = getCharges(194509)                    --真言术：耀
 --检查玩家自身光环
 local hasSurge = hasAura("player", auraName3, true) --圣光涌动
-local hasZephyr = hasAura("player", auraName6, false) --微风
 --检测队伍信息
 local teammateCount = 0                             --队友数量
 local RenewCount = 0                                --恢复数量
 local noRedemption90 = 0                            --无救赎的数量
-local noRedemption80 = 0                            --无救赎的数量
-
-local cancast = not ismoving or hasZephyr           --是否可以施法
+local noRedemption85 = 0                            --无救赎的数量
 
 if UnitPlayerOrPetInRaid("player") then
     for i = 1, 40 do
@@ -99,8 +95,8 @@ if UnitPlayerOrPetInRaid("player") then
                 if unitHealth < 90 then
                     noRedemption90 = noRedemption90 + 1
                 end
-                if unitHealth < 80 then
-                    noRedemption80 = noRedemption80 + 1
+                if unitHealth < 85 then
+                    noRedemption85 = noRedemption85 + 1
                 end
                 if unitHealth < lowestHealth then
                     lowestHealth = unitHealth
@@ -110,7 +106,7 @@ if UnitPlayerOrPetInRaid("player") then
 
             -- 检查战斗状态
             if combat then
-                if noRedemption90 >= setCount and Shine >= 1 and cancast then
+                if noRedemption90 >= setCount and Shine >= 1 and not ismoving then
                     if unitislowest then
                         if not isCastShine or (noRedemption90 >= setCount + 5 and Shine == 2) then
                             index = 50
@@ -118,7 +114,7 @@ if UnitPlayerOrPetInRaid("player") then
                     else
                         index = lowest + 5
                     end
-                elseif noRedemption80 > 0 or (noRedemption90 >= 1 and not cancast) then
+                elseif noRedemption85 > 0 or (noRedemption90 >= 1 and ismoving) then
                     if unitislowest then
                         if hasSurge then
                             index = 53
@@ -132,7 +128,7 @@ if UnitPlayerOrPetInRaid("player") then
                     else
                         index = lowest + 5
                     end
-                elseif noRedemption80 == 0 or Shine == 0 then
+                elseif noRedemption85 == 0 or Shine == 0 then
                     if targetcanattack and targetisalive then
                         index = 56
                     else
@@ -200,12 +196,10 @@ elseif UnitPlayerOrPetInParty("player") then
                     end
                 end
             else
-                if noRedemption90 >= 2 and not isCastShine and cancast then
-                    if Shine > 0 then
+                if noRedemption90 >= 2 and Shine > 0  and not isCastShine and not ismoving then
                         index = 50
-                    end
                 end
-                if noRedemption90 == 1 or Shine == 0 or (noRedemption90 > 1 and not cancast) then
+                if noRedemption90 == 1 or Shine == 0 or (noRedemption90 > 1 and ismoving) then
                     local indexMapping = {
                         [1] = { 61, 66, 71, 76 },
                         [2] = { 62, 67, 72, 77 },
