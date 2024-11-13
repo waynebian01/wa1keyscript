@@ -1,0 +1,3 @@
+
+        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) and UnitInRange(unit) then
+            local unitHealth = （UnitHealth(unit) - UnitGetTotalHealAbsorbs(unit)）/ UnitHealthMax(unit) * 100  --单位生命值

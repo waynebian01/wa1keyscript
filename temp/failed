@@ -1,0 +1,21 @@
+local index = 0
+local failedSpellID = 62618
+local resetTime = 2  -- 重置持续时间为2秒
+
+local function OnEvent(self, event, unit, castGUID, spellID)
+    if event == "UNIT_SPELLCAST_FAILED" and unit == "player" and spellID == failedSpellID then
+        index = 1
+
+        -- 在2秒后重置index为0
+        C_Timer.After(resetTime, function()
+            index = 0
+        end)
+    end
+end
+
+-- 创建帧来监听事件
+local f = CreateFrame("Frame")
+f:RegisterEvent("UNIT_SPELLCAST_FAILED")
+f:SetScript("OnEvent", OnEvent)
+
+return index

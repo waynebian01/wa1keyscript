@@ -1,4 +1,5 @@
 local index = 0
+local hasarura = 0
 --Boss技能
 local bossspell = { "喧神教化", "寒冰镰刀", "霜凝匕首", "黑暗脉动", "震颤猛击", "晦幽纺纱", "捻接", --千丝
     "晦影腐朽", "侵蚀喷涌", --破晨
@@ -86,6 +87,22 @@ local function checkChanneling(unitType, spellList)
         end
     end
     return nil
+end
+
+--获取单位光环的函数
+local function hasAura(unit, auraName, onlyPlayerCast)
+    for j = 1, 40 do
+        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
+        if not auraData then break end
+        if auraData.name == auraName then
+            if onlyPlayerCast then
+                return auraData.sourceUnit == "player"
+            else
+                return true
+            end
+        end
+    end
+    return false
 end
 
 if UnitPlayerOrPetInParty("player") and Shine > 0 then

@@ -21,7 +21,12 @@
         "UnitChannelInfo",
         "UnitCastingInfo",
         "CreateFrame",
-        "GetUnitSpeed"
+        "GetUnitSpeed",
+        "GetTotemInfo",
+        "UnitGetTotalHealAbsorbs",
+        "GetWeaponEnchantInfo",
+        "IsSpellKnown",
+        "C_Timer"
     ],
 
     

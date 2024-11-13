@@ -1,0 +1,20 @@
+--获取激活图腾数量的函数
+local function ActiveTotemsCount(totemNames)
+    local count = {}
+    for _, name in ipairs(totemNames) do
+        count[name] = 0
+    end
+
+    for i = 1, 4 do
+        local haveTotem, totemName = GetTotemInfo(i)
+        if haveTotem and count[totemName] ~= nil then
+            count[totemName] = count[totemName] + 1
+        end
+    end
+
+    return count
+end
+
+--图腾激活数量
+local activeHealingStreamTotems = ActiveTotemsCount["治疗之泉图腾"]
+local activeCloudburstTotems = ActiveTotemsCount["暴雨图腾"]
