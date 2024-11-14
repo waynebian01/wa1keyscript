@@ -1,0 +1,11 @@
+function (self, event, unit, castGUID, spellID)
+    if unit == "player" and spellID == 3714 then
+        return true
+    end
+    return false
+end
+
+-- 创建帧来监听事件
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("UNIT_SPELLCAST_FAILED")
+frame:SetScript("OnEvent", OnEvent)

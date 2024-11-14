@@ -1,0 +1,72 @@
+local index = 0
+local CleanseToxins = IsPlayerSpell(2136444)
+local Cleanse = IsPlayerSpell(4987)
+local ImprovedCleanse = IsPlayerSpell(393024)
+
+
+local excludedMagics = {
+    ["疑之影"] = true,
+    ["冻结之缚"] = true,
+    ["震地回响"] = true,
+    ["震地"] = true
+}
+
+local excludedPoisons = {
+    ["巨口蛙毒"] = true,
+    ["培植毒药"] = true
+}
+
+
+local function hasMagicDebuff(unit)
+    for j = 1, 40 do
+        local debuffData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HARMFUL")
+        if not debuffData then break end
+
+        local name = debuffData.name
+        local debuffType = debuffData.dispelName
+        local spellId = debuffData.spellId
+
+        if debuffType == "Magic" and not excludedMagics[name] then
+            return true
+        end
+
+        if spellId == 440313 then
+            return true
+        end
+    end
+    return false
+end
+
+local function hasDiseaseorPoisonDebuff(unit)
+    for j = 1, 40 do
+        local debuffData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HARMFUL")
+        if not debuffData then break end
+        local name = debuffData.name
+        local debuffType = debuffData.dispelName
+        -- 检查是否为疾病类型的可驱散光环
+        if (debuffType == "Disease" or debuffType == "Poison") and not excludedPoisons[name] then
+            return true
+        end
+    end
+    return false
+end
+
+
+
+for i = 1, 4 do
+    local unit = "party" .. i
+    if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitInRange(unit) and UnitCanAssist("player", unit) then
+        if (Cleanse and hasMagicDebuff(unit)) or
+            ((ImprovedCleanse or CleanseToxins) and hasDiseaseorPoisonDebuff(unit)) then
+            index = i + 1
+            break
+        end
+    end
+end
+
+if (Cleanse and hasMagicDebuff("player")) or
+    ((ImprovedCleanse or CleanseToxins) and hasDiseaseorPoisonDebuff("player")) then
+    index = 1
+end
+
+return index

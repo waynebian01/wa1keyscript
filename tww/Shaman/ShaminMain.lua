@@ -94,7 +94,7 @@ local HealingStreamTotem = getCharges(5394)               --治疗之泉图腾
 local CloudburstTotem = getCharges(157153)                --暴雨图腾
 local Riptide = getCharges(61295)                         --激流
 --检查玩家自身光环
-local hasSurge = hasAura("player", auraName2, true)       --大地之盾
+local hasEarthShield = hasAura("player", auraName2, true) --玩家大地之盾光环
 --检测队伍信息
 local teammateCount = 0                                   --队友数量
 local eightyCount = 0                                     --生命值低于80的数量

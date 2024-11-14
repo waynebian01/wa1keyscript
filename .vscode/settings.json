@@ -26,7 +26,8 @@
         "UnitGetTotalHealAbsorbs",
         "GetWeaponEnchantInfo",
         "IsSpellKnown",
-        "C_Timer"
+        "C_Timer",
+        "Wa1Key"
     ],
 
     
