@@ -27,7 +27,9 @@
         "GetWeaponEnchantInfo",
         "IsSpellKnown",
         "C_Timer",
-        "Wa1Key"
+        "Wa1Key",
+        "GetSpecialization",
+        "GetInventoryItemID"
     ],
 
     

@@ -1,11 +1,29 @@
-function (self, event, unit, castGUID, spellID)
-    if unit == "player" and spellID == 3714 then
-        return true
+local auraName6 = "元素宗师" --治疗之涌治疗量提高30%
+--获取单位光环的函数
+local function hasAura(unit, auraName, onlyPlayerCast)
+    for j = 1, 40 do
+        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
+        if not auraData then break end
+        if auraData.name == auraName then
+            if onlyPlayerCast then
+                return auraData.sourceUnit == "player"
+            else
+                return true
+            end
+        end
     end
     return false
 end
+-- 获取单位的光环层数
+local function getAuraStacks(unit, auraName)
+    for i = 1, 40 do
+        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL")
+        if auraData and auraData.name == auraName then
+            return auraData.applications -- 这里返回光环的层数（stacks）
+        end
+    end
+    return 0 -- 如果找不到指定的光环，返回0
+end
 
--- 创建帧来监听事件
-local frame = CreateFrame("Frame")
-frame:RegisterEvent("UNIT_SPELLCAST_FAILED")
-frame:SetScript("OnEvent", OnEvent)
+local hasMaster = hasAura("player", auraName6, true)    --元素宗师
+local masterStacks = getAuraStacks("player", auraName6) --元素宗师层数

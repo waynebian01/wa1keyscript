@@ -207,7 +207,7 @@ elseif UnitPlayerOrPetInParty("player") then
                         [4] = { 64, 69, 74, 79 },
                         [5] = { 65, 70, 75, 80 },
                     }
-                    --61-65盾，66-70全神贯注，71-75快速治疗，76-80恢复，80-81苦修
+                    --61-65盾，66-70全神贯注，71-75快速治疗，76-80恢复，80-85苦修
                     local indexGroup
                     if hasSurge then
                         indexGroup = 3

@@ -1,6 +1,6 @@
 local index = 0
-local CleanseToxins = IsPlayerSpell(2136444)
-local Cleanse = IsPlayerSpell(4987)
+local Specializations = GetSpecialization() or 0 -- 获取玩家的专精编号，如果未选择专精则返回0
+local CleanseToxins = IsPlayerSpell(213644)
 local ImprovedCleanse = IsPlayerSpell(393024)
 
 
@@ -56,17 +56,30 @@ end
 for i = 1, 4 do
     local unit = "party" .. i
     if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitInRange(unit) and UnitCanAssist("player", unit) then
-        if (Cleanse and hasMagicDebuff(unit)) or
-            ((ImprovedCleanse or CleanseToxins) and hasDiseaseorPoisonDebuff(unit)) then
-            index = i + 1
-            break
+        if Specializations == 1 then
+            if hasMagicDebuff(unit) or (ImprovedCleanse and hasDiseaseorPoisonDebuff(unit)) then
+                index = i + 1
+                break
+            end
+        elseif Specializations == 2 or Specializations == 3 then
+            if CleanseToxins and hasDiseaseorPoisonDebuff(unit) then
+                index = i + 1
+                break
+            end
         end
     end
 end
 
-if (Cleanse and hasMagicDebuff("player")) or
-    ((ImprovedCleanse or CleanseToxins) and hasDiseaseorPoisonDebuff("player")) then
-    index = 1
+
+if Specializations == 1 then
+    if hasMagicDebuff("player") or (ImprovedCleanse and hasDiseaseorPoisonDebuff("player")) then
+        index = 1
+    end
+elseif Specializations == 2 or Specializations == 3 then
+    if CleanseToxins and hasDiseaseorPoisonDebuff("player") then
+        index = 1
+    end
 end
+
 
 return index
