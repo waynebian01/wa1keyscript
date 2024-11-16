@@ -12,7 +12,7 @@ local auraName2 = "大地之盾"
 local auraName3 = "潮汐奔涌" --激流,下一个治疗波或治疗链的施法时间缩短20%；或使你的下一个治疗之涌的爆击几率提高30%。
 local auraName4 = "潮汐使者" --治疗链施法缩短50%，跳转距离增加100%
 local auraName5 = "浪潮汹涌" --使你的下2个治疗链额外获得10%的治疗量，并且每次弹跳的治疗效果不被削减。
-local auraName6 = "元素宗师" --治疗之涌治疗量提高30%
+local auraName6 = "元素宗师" --治疗之涌治疗量提高30%每层
 local auraName7 = "烈焰震击" --烈焰震击
 local SpiritofRedemption = "救赎之魂" --救赎之魂
 local playerHealth = (UnitHealth("player") - UnitGetTotalHealAbsorbs("player")) / UnitHealthMax("player") * 100
@@ -120,27 +120,32 @@ local activeTotems = countActiveTotems(totemNames)
 local activeHealingStreamTotems = activeTotems["治疗之泉图腾"]
 local activeCloudburstTotems = activeTotems["暴雨图腾"]
 -- 检查技能冷却
-local GCD = getCooldown(61304)                            -- 公共冷却
-local Swiftness = getCooldown(378081)                     -- 自然迅捷
-local FlameShock = getCooldown(470411)                    --烈焰震击
+local GCD = getCooldown(61304)                                       -- 公共冷却
+local Swiftness = getCooldown(378081)                                -- 自然迅捷
+local FlameShock = getCooldown(470411)                               --烈焰震击
 -- 检测技能充能
-local HealingStreamTotem = getCharges(5394)               --治疗之泉图腾
-local CloudburstTotem = getCharges(157153)                --暴雨图腾
-local Riptide = getCharges(61295)                         --激流
-local LavaBurst = getCharges(51505)                       --熔岩爆裂
+local HealingStreamTotem = getCharges(5394)                          --治疗之泉图腾
+local CloudburstTotem = getCharges(157153)                           --暴雨图腾
+local Riptide = getCharges(61295)                                    --激流
+local LavaBurst = getCharges(51505)                                  --熔岩爆裂
 --检测队伍信息
-local teammateCount = 0                                   --队友数量
-local ninetyCount = 0                                     --生命值低于90的数量
-local eightyCount = 0                                     --生命值低于80的数量
-local seventyCount = 0                                    --生命值低于70的数量
-local sixtyCount = 0                                      --生命值低于60的数量
-local fiftyCount = 0                                      --生命值低于50的数量
+local teammateCount = 0                                              --队友数量
+local ninetyCount = 0                                                --生命值低于90的数量
+local eightyCount = 0                                                --生命值低于80的数量
+local seventyCount = 0                                               --生命值低于70的数量
+local sixtyCount = 0                                                 --生命值低于60的数量
+local fiftyCount = 0                                                 --生命值低于50的数量
 --全局检查
-local targetcanattack = UnitCanAttack("player", "target") --目标是否可以攻击
-local targetisalive = not UnitIsDeadOrGhost("target")     --目标是否存活
-local combat = UnitAffectingCombat("player")              --玩家是否在战斗状态
-local hasEarthShieldcount = 0                             --大地之盾数量
-if KnownElementalOrbit and not PlayerEarthShield then index = 81 end
+local targetcanattack = UnitCanAttack("player", "target")            --目标是否可以攻击
+local targetisalive = not UnitIsDeadOrGhost("target")                --目标是否存活
+local combat = UnitAffectingCombat("player")                         --玩家是否在战斗状态
+local hasEarthShieldcount = 0                                        --大地之盾数量
+if KnownElementalOrbit and not PlayerEarthShield then index = 81 end --如果学会了元素环绕，但是自己没有大地之盾，则施放大地之盾
+--检测玩家是否正在施放的法术
+local isCastChainHeal = isCastingSpell(1064)                         --治疗链
+local iscastHealingWave = isCastingSpell(77472)                      --治疗波
+local iscastHealingSurge = isCastingSpell(8004)                      --治疗之涌
+local iscastHealSpell = isCastChainHeal or iscastHealingWave or iscastHealingSurge
 
 if UnitPlayerOrPetInRaid("player") then
     for i = 1, 40 do
@@ -196,7 +201,6 @@ elseif UnitPlayerOrPetInParty("player") then
             local hasRiptide = hasAura(unit, auraName1, true)                                                 --激流
             local hasEarthShield = hasAura(unit, auraName2, true)                                             --大地之盾
             local istank = UnitGroupRolesAssigned(unit) == "TANK"                                             --是否是坦克
-            
 
             if istank and not hasEarthShield then tank = i + 1 end
             if unitHealth < 90 then ninetyCount = ninetyCount + 1 end
@@ -244,6 +248,7 @@ elseif UnitPlayerOrPetInParty("player") then
                     end
                 end
             end
+            local DifferenceValue = secondLowestHealth - lowestHealth
 
             if tank > 1 then
                 index = tank + 80
@@ -270,7 +275,11 @@ elseif UnitPlayerOrPetInParty("player") then
                 end
             else
                 if sixtyCount >= 3 then
-                    index = lowest + 75
+                    if iscastHealSpell and DifferenceValue < 15 then
+                        index = secondLowest + 75
+                    else
+                        index = lowest + 75
+                    end
                 end
             end
 
@@ -281,13 +290,41 @@ elseif UnitPlayerOrPetInParty("player") then
                 index = 54 --暴雨图腾
             end
 
-            if not hasTidalWaves then
-                if Riptide == 0 then
+
+            if hasTidalWaves then
+                if iscastHealSpell then
+                    if DifferenceValue < 15 then
+                        index = secondLowest + 60
+                    elseif DifferenceValue < 30 then
+                        index = secondLowest + 65
+                    else
+                        index = lowest + 65
+                    end
+                else
                     if lowestHealth < 85 then
                         index = lowest + 60
                     end
                     if lowestHealth < 70 then
                         index = lowest + 65
+                    end
+                end
+            else
+                if Riptide == 0 then
+                    if iscastHealSpell then
+                        if DifferenceValue < 15 then
+                            index = secondLowest + 60
+                        elseif DifferenceValue < 30 then
+                            index = secondLowest + 65
+                        else
+                            index = lowest + 65
+                        end
+                    else
+                        if lowestHealth < 85 then
+                            index = lowest + 60
+                        end
+                        if lowestHealth < 70 then
+                            index = lowest + 65
+                        end
                     end
                 else
                     if noRiptidelowestHealth < 90 then
@@ -296,13 +333,6 @@ elseif UnitPlayerOrPetInParty("player") then
                     if lowest <= 70 then
                         index = lowest + 70
                     end
-                end
-            else
-                if lowestHealth < 85 then
-                    index = lowest + 60
-                end
-                if lowestHealth < 70 then
-                    index = lowest + 65
                 end
             end
 
