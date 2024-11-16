@@ -29,7 +29,10 @@
         "C_Timer",
         "Wa1Key",
         "GetSpecialization",
-        "GetInventoryItemID"
+        "GetInventoryItemID",
+        "unitName",
+        "IsItemInRange",
+        "UnitName"
     ],
 
     

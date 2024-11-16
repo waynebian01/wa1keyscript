@@ -1,0 +1,35 @@
+local index = 0
+local ImprovedPurifySpirit = IsPlayerSpell(383016) --强效净化灵魂
+
+local function hasMagicDebuff(unit)
+    for i = 1, 40 do
+        local debuffData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
+        if not debuffData then break end
+        if debuffData.dispelName == "Magic" then
+            return true
+        end
+    end
+    return false
+end
+
+local function hasCurseDebuff(unit)
+    for j = 1, 40 do
+        local debuffData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HARMFUL")
+        if not debuffData then break end
+        local debuffType = debuffData.dispelName
+        if debuffType == "Curse" then
+            return true
+        end
+    end
+    return false
+end
+
+-- 检查鼠标指向的单位
+local unit = "mouseover"
+if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitInRange(unit) and UnitCanAssist("player", unit) then
+    if hasMagicDebuff(unit) or (ImprovedPurifySpirit and hasCurseDebuff(unit)) then
+        index = 1
+    end
+end
+
+return index
