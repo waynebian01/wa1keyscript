@@ -42,10 +42,6 @@ local function hasDiseaseDebuff(unit)
     return false
 end
 
-if hasMagicDebuff("player") then
-    index = 1
-end
-
 for i = 1, 4 do
     local unit = "party" .. i
     if UnitExists(unit) and not UnitIsDeadOrGhost(unit) and UnitInRange(unit) and UnitCanAssist("player", unit) then
@@ -54,6 +50,10 @@ for i = 1, 4 do
             break
         end
     end
+end
+
+if hasMagicDebuff("player") or (ImprovedPurify and hasDiseaseDebuff("player")then
+    index = 1
 end
 
 return index

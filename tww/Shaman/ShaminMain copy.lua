@@ -28,7 +28,7 @@ local function getCharges(spellID)
     local charges = C_Spell.GetSpellCharges(spellID)
     return charges and charges.currentCharges or 0
 end
--- 检查玩家是否正在施放特定法术的函数
+-- 检查玩家是否施放法术的函数
 local function isCastingSpell(spellID)
     local spellName = C_Spell.GetSpellInfo(spellID)
     local castingSpellName, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
@@ -40,7 +40,7 @@ local function isCastingSpell(spellID)
         return false
     end
 end
---获取单位光环的函数
+--获取单位有益光环的函数
 local function hasAura(unit, auraName, onlyPlayerCast)
     for j = 1, 40 do
         local auraData = C_UnitAuras.GetAuraDataByIndex(unit, j, "HELPFUL")
@@ -273,42 +273,18 @@ elseif UnitPlayerOrPetInParty("player") then
             --50治疗之泉图腾，51自然迅捷，52烈焰震击，53熔岩爆裂，54暴雨图腾，55Hekili
             --56选择敌人，57治疗之潮图腾，
             --61-65治疗波，66-70治疗之涌，71-75激流，76-80治疗链，81-85大地之盾
-
-
             if hasTidalWaves then
-                if iscastHealSpell and secondLowestHealth <= 80 then
-                    if DifferenceValue < 15 then
-                        index = secondLowest + 60
-                    elseif DifferenceValue < 30 then
-                        index = secondLowest + 65
-                    else
-                        index = lowest + 65
-                    end
-                else --这里添加治疗逻辑
-                    if lowestHealth < 80 then
-                        index = lowest + 60
-                    end
-                    if lowestHealth < 70 then
-                        index = lowest + 65
-                    end
+                if iscastHealSpell and DifferenceValue > 15 then
+                    logic = 2
+                else
+                    logic = 1
                 end
             else
                 if Riptide == 0 then
-                    if iscastHealSpell and secondLowestHealth <= 80 then
-                        if DifferenceValue < 15 then
-                            index = secondLowest + 60
-                        elseif DifferenceValue < 30 then
-                            index = secondLowest + 65
-                        else
-                            index = lowest + 65
-                        end
-                    else --这里添加治疗逻辑
-                        if lowestHealth < 80 then
-                            index = lowest + 60
-                        end
-                        if lowestHealth < 70 then
-                            index = lowest + 65
-                        end
+                    if iscastHealSpell and DifferenceValue > 15 then
+                        logic = 2
+                    else
+                        logic = 1
                     end
                 else
                     if noRiptidelowestHealth < 90 then
@@ -320,40 +296,51 @@ elseif UnitPlayerOrPetInParty("player") then
                 end
             end
 
-            if hasHighTide then
-                if HealingStreamTotem == 0 then
-                    if seventyCount >= 2 then
-                        index = lowest + 75
-                    end
-                else
-                    if ninetyCount >= 2 and activeHealingStreamTotems == 0 then
+            if logic == 1 then --治疗最低的目标
+                if sixtyCount >= 3 and KnownHealingTideTotem then
+                    index = 57 --治疗之潮图腾
+                elseif sixtyCount >= 1 and Swiftness == 0 and KnownSwiftness then
+                    index = 51 --迅捷
+                elseif seventyCount > 2 then
+                    if HealingStreamTotem > 0 then
                         index = 50
-                    end
-                    if seventyCount >= 2 and activeHealingStreamTotems <= 1 then
-                        index = 50
-                    end
-                end
-            else
-                if ninetyCount >= 2 and activeHealingStreamTotems == 0 and HealingStreamTotem == 2 then
-                    index = 50
-                end
-                if sixtyCount >= 3 then
-                    if iscastHealSpell and DifferenceValue < 15 then
-                        index = secondLowest + 75
                     else
                         index = lowest + 75
+                    end
+                elseif seventyCount >= 1 then
+                    index = lowest + 65
+                elseif eightyCount >= 1 then
+                    index = lowest + 60
+                elseif ninetyCount >= 2 then
+                    if activeHealingStreamTotems == 0 and HealingStreamTotem == 2 then
+                        index = 50
+                    end
+                    if activeCloudburstTotems == 0 and CloudburstTotem > 0 then
+                        index = 54
                     end
                 end
             end
 
-            if Swiftness == 0 and KnownSwiftness and lowestHealth < 60 then
-                index = 51 --迅捷
-            end
-            if KnownHealingTideTotem and sixtyCount >= 3 then
-                index = 57 --治疗之潮图腾
-            end
-            if combat and KnownCloudburstTotem and CloudburstTotem > 0 and activeCloudburstTotems == 0 then
-                index = 54 --暴雨图腾
+            if logic == 2 then --治疗第二低的目标
+                if sixtyCount >= 3 and KnownHealingTideTotem then
+                    index = 57 --治疗之潮图腾
+                elseif sixtyCount >= 1 and Swiftness == 0 and KnownSwiftness then
+                    index = 51 --迅捷
+                elseif seventyCount > 2 then
+                    if HealingStreamTotem > 0 then
+                        index = 50
+                    else
+                        index = secondLowestHealth + 75
+                    end
+                elseif seventyCount >= 1 then
+                    index = secondLowestHealth + 65
+                elseif eightyCount >= 2 then
+                    index = secondLowestHealth + 60
+                elseif ninetyCount >= 1 then
+                    if activeCloudburstTotems == 0 and CloudburstTotem > 0 then
+                        index = 54
+                    end
+                end
             end
 
             if lowestHealth > 80 and combat and targetcanattack and targetisalive then
