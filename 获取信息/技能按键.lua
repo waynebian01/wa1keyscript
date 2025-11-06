@@ -1,9 +1,7 @@
-local e = aura_env
-local spellkey = {}
+if not Skippy then Skippy = {} end
+Skippy.spellkey = {}
 local wipe = table.wipe
 if not Wa1Key or not Wa1Key.Prop then return end
-Wa1Key.Prop.insert = 0
--- 技能 ID 到数字的映射表
 
 local actionBars = {
     { startSlot = 1,   endSlot = 12,  bindingPrefix = "ACTIONBUTTON" },
@@ -32,7 +30,7 @@ local keymap = {
     ["7"] = 55,        -- 0x37
     ["8"] = 56,        -- 0x38
     ["9"] = 57,        -- 0x39
-    ["10"] = 48,       -- 0x30
+    ["0"] = 48,        -- 0x30
 
     ["F1"] = 112,      -- 0x70
     ["F2"] = 113,      -- 0x71
@@ -103,13 +101,12 @@ local keymap = {
     ["/"] = 191,       -- 0xBF
 }
 
---[[local function ReadKeybindings()
-    wipe(spellkey)
+local function ReadKeybindings()
     for slot = 1, 180 do
         local actionType, id = GetActionInfo(slot)
         if actionType == "macro" or actionType == "spell" then
             local spellinfo = C_Spell.GetSpellInfo(id)
-            if spellinfo and aura_env.config[spellinfo.name] then
+            if spellinfo then
                 for _, bar in ipairs(actionBars) do
                     if slot >= bar.startSlot and slot <= bar.endSlot then
                         -- 计算动作条内的槽位编号（1-12）
@@ -117,7 +114,7 @@ local keymap = {
                         local command = bar.bindingPrefix .. slotInBar -- 构造绑定命令
                         local key = GetBindingKey(command)             -- 获取绑定的按键
                         if key then
-                            spellkey[id] = {
+                            Skippy.spellkey[id] = {
                                 key = key,
                                 slot = slot,
                                 keycode = keymap[key],
@@ -130,54 +127,6 @@ local keymap = {
             end
         end
     end
-end]]
-
-
-local function TryStoreKeybinding(slot, actionType, id)
-    if actionType ~= "macro" and actionType ~= "spell" then
-        return
-    end
-    local spellinfo = C_Spell.GetSpellInfo(id)
-    if not spellinfo or not aura_env.config[spellinfo.name] then
-        return
-    end
-    for _, bar in ipairs(actionBars) do
-        if slot >= bar.startSlot and slot <= bar.endSlot then
-            local slotInBar = slot - bar.startSlot + 1
-            local command = bar.bindingPrefix .. slotInBar
-            local key = GetBindingKey(command)
-            if key then
-                spellkey[id] = {
-                    key = key,
-                    slot = slot,
-                    keycode = keymap[key],
-                    icon = spellinfo.iconID,
-                    name = spellinfo.name,
-                }
-                return
-            end
-        end
-    end
-end
-
-
-local function ReadKeybindings()
-    wipe(spellkey)
-    for slot = 1, 180 do
-        local actionType, id = GetActionInfo(slot)
-        TryStoreKeybinding(slot, actionType, id)
-    end
-end
-
-local function getCooldown(id)
-    local cooldown = C_Spell.GetSpellCooldown(id)
-    return (cooldown.startTime > 0) and (cooldown.startTime + cooldown.duration - GetTime()) or 0
-end
-local function spellIsUsable(spellID)
-    local spellCD = getCooldown(spellID)
-    local GCD = getCooldown(61304)
-    local isUsable = C_Spell.IsSpellUsable(spellID)
-    return spellCD <= GCD and isUsable
 end
 
 local frame = CreateFrame("Frame")
@@ -186,38 +135,17 @@ frame:RegisterEvent("SPELLS_CHANGED")
 frame:RegisterEvent("ACTIONBAR_SHOWGRID")
 frame:RegisterEvent("ACTIONBAR_HIDEGRID")
 frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-frame:RegisterEvent("UNIT_SPELLCAST_FAILED")
-frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
-frame:SetScript("OnEvent", function(self, event, arg1, arg2, arg3)
-    if event == "UNIT_SPELLCAST_FAILED" and arg1 == "player" then
-        local hekilispell = HekiliDisplayPrimary.Recommendations[1].actionID or 0
-        if spellkey[arg3] and hekilispell ~= arg3 then
-            e.iconID = spellkey[arg3].icon
-            e.name = spellkey[arg3].name
-            e.key = spellkey[arg3].key
-            if spellIsUsable(arg3) then
-                C_Timer.After(3, function()
-                    Wa1Key.Prop.insert = 0
-                    return false
-                end)
-                Wa1Key.Prop.insert = spellkey[arg3].keycode
-                return true
-            end
-        end
-    elseif event == "UNIT_SPELLCAST_SUCCEEDED" and arg1 == "player" then
-        if spellkey[arg3] then
-            Wa1Key.Prop.insert = 0
-            return false
-        end
-    elseif event == "UPDATE_BINDINGS" or
+frame:SetScript("OnEvent", function(self, event)
+    if event == "UPDATE_BINDINGS" or
         event == "SPELLS_CHANGED" or
         event == "ACTIONBAR_SHOWGRID" or
         event == "ACTIONBAR_HIDEGRID" or
         event == "ACTIVE_TALENT_GROUP_CHANGED" or
-        event == "PLAYER_ENTERING_WORLD" then
+        event == "PLAYER_ENTERING_WORLD" then        
         C_Timer.After(0.5, function()
+            wipe(Skippy.spellkey)
             ReadKeybindings()
         end)
     end
