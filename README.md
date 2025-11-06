@@ -15,7 +15,7 @@ Wa1Key文件夹内容适用于Wa1Key程序，其他文件需写入WeakAura2插�
 * 团队: *无*
 
 ## 使用方法(首次使用):
-1. 将Skippy.lua放入Wa1Key目录\module
+1. 将Skippy.wa1key放入Wa1Key目录\module
 2. 启动游戏
 3. 启动Wa1Key
 4. 选择将Skippy模块
@@ -33,3 +33,4 @@ Wa1Key文件夹内容适用于Wa1Key程序，其他文件需写入WeakAura2插�
 的单位释放[生命绽放](https://www.wowhead.com/mop-classic/cn/spell=33763).
     * 因无法监控[野性蘑菇](https://www.wowhead.com/mop-classic/cn/spell=145205)
 ,需要自己手动施放或引爆.
+
