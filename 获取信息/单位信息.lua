@@ -134,7 +134,7 @@ local function GetUnitObj(unit)
     end
 end
 
--- 更新血量（自动计算百分比，吸收盾后血量）
+-- 更新血量（计算百分比， （当前生命值 + 治疗预估 - 治疗吸收） / 最大生命值）
 local function UpdateHealth(unit, key, getter)
     local obj = GetUnitObj(unit)
     if not obj then return end
@@ -530,3 +530,4 @@ frame:SetScript("OnEvent", function(self, event, arg1, arg2)
         UpdateAllTotem()
     end
 end)
+
