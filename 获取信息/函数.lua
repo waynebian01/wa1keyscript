@@ -1,23 +1,3 @@
---=========函数说明=========
---[[获取血量最低的单位，并返回单位和血量百分比  :
- 根据生命值百分比 : Skippy.GetLowestUnit()
- 根据职责 : Skippy.GetLowestUnitWithRoles(role1, role2, role3)
- 根据光环 : Skippy.GetLowestUnitWithAura(auraName)
- 根据玩家光环 : Skippy.GetLowestUnitWithPlayerAuras(auraName)
- 根据无玩家光环 : Skippy.GetLowestUnitWithoutPlayerAuras(auraName)
- 根据任意光环 : Skippy.GetLowestUnitWithAnyAuras(auraTable)
- 根据任意玩家光环 : Skippy.GetLowestUnitWithAnyPlayerAuras(auraTable)
-]]
---[[
-获取符合条件的单位数量
- 根据生命值百分比 : Skippy.GetCount(healthThreshold)
- 根据职责 : Skippy.GetCountWithRoles(role1, role2, role3)
- 根据光环 : Skippy.GetCountWithAura(auraName)
- 根据玩家光环 : Skippy.GetCountWithPlayerAura(auraName)
- 根据无玩家光环 : Skippy.GetCountWithoutPlayerAura(auraName)
- 根据任意光环 : Skippy.GetCountWithAnyAuras(auraTable)
- 根据任意玩家光环 : Skippy.GetCountWithAnyPlayerAuras(auraTable)
-]]
 if not Skippy then Skippy = {} end
 local spellkey = {
     ["target"] = 0,
@@ -121,11 +101,24 @@ local spellkey = {
     ["回春术"] = 49,
     ["治疗之触"] = 50,
     ["自然迅捷"] = 51,
+    -- 武僧
+    ["禅意珠"] = 43,
+    ["复苏之雾"] = 44,
+    ["升腾之雾"] = 45,
+
+    ["抚慰之雾"] = 47,
+    ["真气波"] = 48,
+    ["真气爆裂"] = 49,
+    ["贯日击"] = 50,
+    ["幻灭踢"] = 51,
+    ["猛虎掌"] = 52,
+    ["移花接木"] = 53,
+    ["氤氲之雾"] = 54,
 }
 
 function Skippy.UnitHeal(unit, spell)
     local output = ""
-
+    local spellInfo = C_Spell.GetSpellInfo(spell)
     if not Wa1Key or not Wa1Key.Prop then
         output = output .. "Wa1Key不存在"
         Skippy.txt = output
@@ -162,13 +155,17 @@ function Skippy.UnitHeal(unit, spell)
         return true
     elseif unit == "spell" or unit == "target" then
         Wa1Key.Prop.heal = spellkey[spell]
+        if spellInfo and spellInfo.iconID then
+            Skippy.iconID = spellInfo.iconID
+        else
+            Skippy.iconID = 133036
+        end
     else
         if UnitIsUnit(unit, "focus") then
             Wa1Key.Prop.heal = spellkey[spell]
         else
             Wa1Key.Prop.heal = spellkey[unit]
         end
-        local spellInfo = C_Spell.GetSpellInfo(spell)
         if spellInfo and spellInfo.iconID then
             Skippy.iconID = spellInfo.iconID
         else
@@ -183,12 +180,11 @@ function Skippy.UnitHeal(unit, spell)
 end
 
 local function existsUnit(data)
-    local exists = data.exists
     local inRange = data.inRange
     local canAssist = data.canAssist
     local inSight = data.inSight
     local isDead = data.isDead
-    return exists and inRange and canAssist and inSight and not isDead
+    return inRange and canAssist and inSight and not isDead
 end
 
 local function makeAuraSet(auraTable)
@@ -223,6 +219,22 @@ function Skippy.IsFinishedChanneling(channelTime)
         end
     end
     return true
+end
+
+--@param range 范围
+--@return 范围内敌人数量
+function Skippy.GetEnemyCount(range)
+    local count = 0
+    for i = 1, 10 do
+        local unit = "nameplate" .. i
+        local minRange, maxRange = WeakAuras.GetRange(unit)
+        if maxRange then
+            if maxRange <= range then
+                count = count + 1
+            end
+        end
+    end
+    return count
 end
 
 --@param auraName 光环名称
@@ -754,14 +766,15 @@ function Skippy.GetCountWithAnyAuras(healthThreshold, auraTable)
 end
 
 -- @param healthThreshold 血量百分比阈值, 只找到生命值低于这个百分比的单位,默认100
+-- @param subgroup 小队编号，如1、2、3、4，默认玩家所在小队
 -- @return 只计算玩家所在小队符合条件的单位数量
-function Skippy.GetCountInSubGroup(healthThreshold)
+function Skippy.GetCountInSubGroup(healthThreshold, subgroup)
     healthThreshold = healthThreshold or 100
     local count = 0
-    local subgroup = Skippy.Units.player.subgroup
+    local sub = subgroup or Skippy.Units.player.subgroup
     for unit, data in pairs(Skippy.Group) do
         local percentHealth = data.percentHealth
-        if existsUnit(data) and data.subgroup == subgroup then
+        if existsUnit(data) and data.subgroup == sub then
             if percentHealth < healthThreshold then
                 count = count + 1
             end
