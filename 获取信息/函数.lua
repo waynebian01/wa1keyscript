@@ -114,6 +114,11 @@ local spellkey = {
     ["猛虎掌"] = 52,
     ["移花接木"] = 53,
     ["氤氲之雾"] = 54,
+    ["真气酒"] = 55,
+    ["神鹤引项踢"] = 56,
+    ["振魂引"] = 57,
+    ["法力茶"] = 58,
+    ["雷光聚神茶"] = 59,
 }
 
 function Skippy.UnitHeal(unit, spell)
@@ -180,11 +185,7 @@ function Skippy.UnitHeal(unit, spell)
 end
 
 local function existsUnit(data)
-    local inRange = data.inRange
-    local canAssist = data.canAssist
-    local inSight = data.inSight
-    local isDead = data.isDead
-    return inRange and canAssist and inSight and not isDead
+    return data.inRange and data.canAssist and data.inSight and not data.isDead
 end
 
 local function makeAuraSet(auraTable)
@@ -386,6 +387,84 @@ function Skippy.GetLowestUnitWithPlayerAura(auraName)
             end
         end
     end
+    return lowestUnit, lowestHealth
+end
+
+function Skippy.GetLowestUnitWithAuraAndWithoutPlayerAuras(auraName, PlayerAuraName)
+    local lowestUnit = nil
+    local lowestHealth = 101
+    for unit, data in pairs(Skippy.Group) do
+        -- 1. 检查单位是否存活且可用 (Exists and Available)
+        if existsUnit(data) then
+            local percentHealth = data.percentHealth
+            local hasPlayerAura = false
+            local hasAura = false
+            -- 2. 检查光环 (Aura Check)
+            for _, aura in pairs(data.aura) do
+                if not hasPlayerAura and aura.name == PlayerAuraName and aura.sourceUnit == "player" then
+                    hasPlayerAura = true
+                    if hasAura then
+                        break
+                    end
+                end
+
+                if not hasAura and aura.name == auraName then
+                    hasAura = true
+                    if hasPlayerAura then
+                        break
+                    end
+                end
+            end
+
+            -- 3. 主逻辑检查 (Main Logic Check)
+            if not hasPlayerAura and hasAura then
+                if percentHealth < lowestHealth then
+                    lowestHealth = percentHealth
+                    lowestUnit = unit
+                end
+            end
+        end
+    end
+
+    return lowestUnit, lowestHealth
+end
+
+function Skippy.GetLowestUnitWithAuraTableAndWithoutPlayerAuras(auraTable, PlayerAuraName)
+    local lowestUnit = nil
+    local lowestHealth = 101
+    local auraSet = makeAuraSet(auraTable)
+    for unit, data in pairs(Skippy.Group) do
+        -- 1. 检查单位是否存活且可用 (Exists and Available)
+        if existsUnit(data) then
+            local percentHealth = data.percentHealth
+            local hasPlayerAura = false
+            local hasAura = false
+            -- 2. 检查光环 (Aura Check)
+            for _, aura in pairs(data.aura) do
+                if not hasPlayerAura and aura.name == PlayerAuraName and aura.sourceUnit == "player" then
+                    hasPlayerAura = true
+                    if hasAura then
+                        break
+                    end
+                end
+                if not hasAura and auraSet[aura.name] then
+                    hasAura = true
+                    if hasPlayerAura then
+                        break
+                    end
+                end
+            end
+
+            -- 3. 主逻辑检查 (Main Logic Check)
+            if not hasPlayerAura and hasAura then
+                if percentHealth < lowestHealth then
+                    lowestHealth = percentHealth
+                    lowestUnit = unit
+                end
+            end
+        end
+    end
+
     return lowestUnit, lowestHealth
 end
 
