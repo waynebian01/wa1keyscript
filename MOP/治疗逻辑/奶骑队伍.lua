@@ -1,5 +1,6 @@
 if not Skippy or not Skippy.Units or not Skippy.state or not Skippy.UnitHeal then return end
-if Skippy.state.class ~= "圣骑士" or Skippy.state.specID ~= 65 or not Skippy.state.inParty then return end
+if Skippy.state.class ~= "圣骑士" or Skippy.state.specID ~= 65 then return end
+if not Skippy.state.inParty then return end
 if not Skippy.Group or not Skippy.state.initialization then return Skippy.UnitHeal("Skip", "Skip") end
 
 local currentTime = GetTime()
