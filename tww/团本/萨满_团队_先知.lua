@@ -7,6 +7,7 @@ local state = Skippy.state
 local playerAuras = Skippy.GetPlayerAuras
 local isKnown = Skippy.IsSpellKnown
 local spell = Skippy.GetSpellInfo
+local CloudburstTotem = playerAuras("暴雨图腾")
 local lowestUnit = Skippy.GetLowestUnit() -- 生命值最低的单位
 local noRiptideUnit = Skippy.GetLowestUnitWithoutPlayerAuras("激流") -- 没有[激流]光环生命值最低的单位
 local hasRiptideUnit = Skippy.GetLowestUnitWithPlayerAura("激流") -- 有[激流]光环生命值最低的单位
@@ -20,7 +21,7 @@ if state.isCombat then
         if spell("收回图腾").usable and spell(157153).charges.currentCharges == 0 then
             return Skippy.UnitHeal("spell", "收回图腾")
         end
-        if not playerAuras("暴雨图腾") and spell(157153).charges.currentCharges > 0 then
+        if not CloudburstTotem and spell(157153).charges.currentCharges > 0 then
             return Skippy.UnitHeal("spell", "暴雨图腾")
         end
     end
