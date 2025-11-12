@@ -21,86 +21,132 @@ local actionBars = {
 }
 
 local keymap = {
-    ["1"] = 49,        -- 0x31
-    ["2"] = 50,        -- 0x32
-    ["3"] = 51,        -- 0x33
-    ["4"] = 52,        -- 0x34
-    ["5"] = 53,        -- 0x35
-    ["6"] = 54,        -- 0x36
-    ["7"] = 55,        -- 0x37
-    ["8"] = 56,        -- 0x38
-    ["9"] = 57,        -- 0x39
-    ["0"] = 48,        -- 0x30
+    ["1"] = 49,               -- 0x31
+    ["2"] = 50,               -- 0x32
+    ["3"] = 51,               -- 0x33
+    ["4"] = 52,               -- 0x34
+    ["5"] = 53,               -- 0x35
+    ["6"] = 54,               -- 0x36
+    ["7"] = 55,               -- 0x37
+    ["8"] = 56,               -- 0x38
+    ["9"] = 57,               -- 0x39
+    ["0"] = 48,               -- 0x30
 
-    ["F1"] = 112,      -- 0x70
-    ["F2"] = 113,      -- 0x71
-    ["F3"] = 114,      -- 0x72
-    ["F4"] = 115,      -- 0x73
-    ["F5"] = 116,      -- 0x74
-    ["F6"] = 117,      -- 0x75
-    ["F7"] = 118,      -- 0x76
-    ["F8"] = 119,      -- 0x77
-    ["F9"] = 120,      -- 0x78
-    ["F10"] = 121,     -- 0x79
-    ["F11"] = 122,     -- 0x7A
-    ["F12"] = 123,     -- 0x7B
+    ["F1"] = 112,             -- 0x70
+    ["F2"] = 113,             -- 0x71
+    ["F3"] = 114,             -- 0x72
+    ["F4"] = 115,             -- 0x73
+    ["F5"] = 116,             -- 0x74
+    ["F6"] = 117,             -- 0x75
+    ["F7"] = 118,             -- 0x76
+    ["F8"] = 119,             -- 0x77
+    ["F9"] = 120,             -- 0x78
+    ["F10"] = 121,            -- 0x79
+    ["F11"] = 122,            -- 0x7A
+    ["F12"] = 123,            -- 0x7B
 
-    ["Q"] = 81,        -- 0x51
-    ["W"] = 87,        -- 0x57
-    ["E"] = 69,        -- 0x45
-    ["R"] = 82,        -- 0x52
-    ["T"] = 84,        -- 0x54
-    ["Y"] = 89,        -- 0x59
-    ["U"] = 85,        -- 0x55
-    ["I"] = 73,        -- 0x49
-    ["O"] = 79,        -- 0x4F
-    ["P"] = 80,        -- 0x50
-    ["A"] = 65,        -- 0x41
-    ["S"] = 83,        -- 0x53
-    ["D"] = 68,        -- 0x44
-    ["F"] = 70,        -- 0x46
-    ["G"] = 71,        -- 0x47
-    ["H"] = 72,        -- 0x48
-    ["J"] = 74,        -- 0x4A
-    ["K"] = 75,        -- 0x4B
-    ["L"] = 76,        -- 0x4C
-    ["Z"] = 90,        -- 0x5A
-    ["X"] = 88,        -- 0x58
-    ["C"] = 67,        -- 0x43
-    ["V"] = 86,        -- 0x56
-    ["B"] = 66,        -- 0x42
-    ["N"] = 78,        -- 0x4E
-    ["M"] = 77,        -- 0x4D
+    ["Q"] = 81,               -- 0x51
+    ["W"] = 87,               -- 0x57
+    ["E"] = 69,               -- 0x45
+    ["R"] = 82,               -- 0x52
+    ["T"] = 84,               -- 0x54
+    ["Y"] = 89,               -- 0x59
+    ["U"] = 85,               -- 0x55
+    ["I"] = 73,               -- 0x49
+    ["O"] = 79,               -- 0x4F
+    ["P"] = 80,               -- 0x50
+    ["A"] = 65,               -- 0x41
+    ["S"] = 83,               -- 0x53
+    ["D"] = 68,               -- 0x44
+    ["F"] = 70,               -- 0x46
+    ["G"] = 71,               -- 0x47
+    ["H"] = 72,               -- 0x48
+    ["J"] = 74,               -- 0x4A
+    ["K"] = 75,               -- 0x4B
+    ["L"] = 76,               -- 0x4C
+    ["Z"] = 90,               -- 0x5A
+    ["X"] = 88,               -- 0x58
+    ["C"] = 67,               -- 0x43
+    ["V"] = 86,               -- 0x56
+    ["B"] = 66,               -- 0x42
+    ["N"] = 78,               -- 0x4E
+    ["M"] = 77,               -- 0x4D
 
-    ["NUMPAD0"] = 96,  -- 0x60
-    ["NUMPAD1"] = 97,  -- 0x61
-    ["NUMPAD2"] = 98,  -- 0x62
-    ["NUMPAD3"] = 99,  -- 0x63
-    ["NUMPAD4"] = 100, -- 0x64
-    ["NUMPAD5"] = 101, -- 0x65
-    ["NUMPAD6"] = 102, -- 0x66
-    ["NUMPAD7"] = 103, -- 0x67
-    ["NUMPAD8"] = 104, -- 0x68
-    ["NUMPAD9"] = 105, -- 0x69
-    ["NUMPAD*"] = 106, -- 0x6A
-    ["NUMPAD+"] = 107, -- 0x6B
-    ["NUMPAD-"] = 109, -- 0x6D
-    ["NUMPAD."] = 110, -- 0x6E
-    ["NUMPAD/"] = 111, -- 0x6F
+    ["NUMPAD0"] = 96,         -- 0x60
+    ["NUMPAD1"] = 97,         -- 0x61
+    ["NUMPAD2"] = 98,         -- 0x62
+    ["NUMPAD3"] = 99,         -- 0x63
+    ["NUMPAD4"] = 100,        -- 0x64
+    ["NUMPAD5"] = 101,        -- 0x65
+    ["NUMPAD6"] = 102,        -- 0x66
+    ["NUMPAD7"] = 103,        -- 0x67
+    ["NUMPAD8"] = 104,        -- 0x68
+    ["NUMPAD9"] = 105,        -- 0x69
+    ["NUMPADMULTIPLY"] = 106, -- 0x6A
+    ["NUMPADPLUS"] = 107,     -- 0x6B
+    ["NUMPADMINUS"] = 109,    -- 0x6D
+    ["NUMPADDICEMAL"] = 110,  -- 0x6E
+    ["NUMPADDIVIDE"] = 111,   -- 0x6F
 
-    ["Space"] = 32,    -- 0x20
-    ["="] = 187,       -- 0xBB
-    ["-"] = 189,       -- 0xBD
-    ["["] = 219,       -- 0xDB
-    ["]"] = 221,       -- 0xDD
-    ["\\"] = 220,      -- 0xDC
-    [";"] = 186,       -- 0xBA
-    ["'"] = 222,       -- 0xDE
-    [","] = 188,       -- 0xBC
-    ["."] = 190,       -- 0xBE
-    ["/"] = 191,       -- 0xBF
+    ["Space"] = 32,           -- 0x20
+    ["="] = 187,              -- 0xBB
+    ["-"] = 189,              -- 0xBD
+    ["["] = 219,              -- 0xDB
+    ["]"] = 221,              -- 0xDD
+    ["\\"] = 220,             -- 0xDC
+    [";"] = 186,              -- 0xBA
+    ["'"] = 222,              -- 0xDE
+    [","] = 188,              -- 0xBC
+    ["."] = 190,              -- 0xBE
+    ["/"] = 191,              -- 0xBF
 }
 
+local function ProcessActionSlot(slot)
+    -- 1. 获取动作信息并进行卫语句检查
+    local actionType, id = GetActionInfo(slot)
+    if actionType ~= "macro" and actionType ~= "spell" then
+        return
+    end
+
+    -- 2. 获取法术信息并进行卫语句检查
+    local spellinfo = C_Spell.GetSpellInfo(id)
+    if not spellinfo then
+        return
+    end
+
+    -- 3. 遍历动作条
+    for _, bar in ipairs(actionBars) do
+        -- 4. 检查槽位是否在当前动作条范围内
+        if slot >= bar.startSlot and slot <= bar.endSlot then
+            local slotInBar = slot - bar.startSlot + 1
+            local command = bar.bindingPrefix .. slotInBar -- 构造绑定命令
+            local key = GetBindingKey(command)             -- 获取绑定的按键
+            -- 5. 检查是否有按键绑定
+            if key then
+                Skippy.spellkey[id] = {
+                    key = key,
+                    slot = slot,
+                    keycode = keymap[key],
+                    icon = spellinfo.iconID,
+                    name = spellinfo.name,
+                }
+                -- 如果一个动作（如法术）只需要被记录一次，
+                -- 找到绑定后就可以跳出动作条循环 (break)
+                -- break
+            end
+        end
+    end
+end
+
+local function ReadKeybindings()
+    -- 确保 actionBars 是作为参数传入或在作用域内可用
+    for slot = 1, 180 do
+        -- 将所有处理逻辑委托给一个扁平化的函数
+        ProcessActionSlot(slot)
+    end
+end
+
+--[[
 local function ReadKeybindings()
     for slot = 1, 180 do
         local actionType, id = GetActionInfo(slot)
@@ -128,7 +174,7 @@ local function ReadKeybindings()
         end
     end
 end
-
+]]
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("UPDATE_BINDINGS")
 frame:RegisterEvent("SPELLS_CHANGED")
@@ -143,7 +189,7 @@ frame:SetScript("OnEvent", function(self, event)
         event == "ACTIONBAR_SHOWGRID" or
         event == "ACTIONBAR_HIDEGRID" or
         event == "ACTIVE_TALENT_GROUP_CHANGED" or
-        event == "PLAYER_ENTERING_WORLD" then        
+        event == "PLAYER_ENTERING_WORLD" then
         C_Timer.After(0.5, function()
             wipe(Skippy.spellkey)
             ReadKeybindings()
