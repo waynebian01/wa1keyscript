@@ -11,8 +11,16 @@ Wa1Key文件夹内容适用于Wa1Key程序，其他文件需写入WeakAura2插�
 *正式服需要指定天赋才能使用*
 * 队伍: *无*
 * 团队: 
-    * *神牧: CEQAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAgxYmZbmZGzYwMzM2mhZAAAAwsYZ2G2mZGMLMmxMjBLLwMmaWAYmFsQYMLDoxCswiZZAA*
-    * *奶德: CkGAAAAAAAAAAAAAAAAAAAAAAsNmZGLbjZmxiZb4BYstNzyitZAAAAAAAAAAAAsZoZjx0MDwsMzyMzwwMAAAAAgBAMAAQAAAz2MbNLzsZjxMDwshRD*
+    * 神牧:
+    ```
+    CEQAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAgxYmZbmZGzYwMzM2mhZAAAAwsYZ2G2mZGMLMmxMjBLLwMmaWAYmFsQYMLDoxCswiZZAA
+    ```
+
+    * 奶德:
+    ```
+    CkGAAAAAAAAAAAAAAAAAAAAAAsNmZGLbjZmxiZb4BYstNzyitZAAAAAAAAAAAAsZoZjx0MDwsMzyMzwwMAAAAAgBAMAAQAAAz2MbNLzsZjxMDwshRD
+    ```
+    
 ### 熊猫人
 * 队伍: *神牧*, *奶骑*, *奶德*, *奶萨*，*奶僧*
 * 团队: *无*
