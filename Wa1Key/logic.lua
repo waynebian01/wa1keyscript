@@ -1,7 +1,8 @@
 local Go = Prop("Go")
-local heal = Prop("heal")
+local heal = "s" .. tostring(Prop("heal"))
 local keycode = Prop("keycode")
 local insert = Prop("insert")
+local press = Prop("press")
 local autospell = Prop("autospell")
 
 if Go == 255 then
@@ -14,18 +15,18 @@ if insert > 0 then
 end
 
 if Go == 254 then
-    Cast("38")
+    Cast("s52")
     return
 end
 
 if Go == 1 then
-    if heal ~= 0 then
-        Cast(tostring(heal))
+    if Prop("heal") ~= 0 then
+        Cast(heal)
         return
     end
 
-    if keycode == 254 then
-        Cast("40")
+    if press ~= 255 then
+        PressKey(press)
         return
     end
 
