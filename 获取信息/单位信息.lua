@@ -1,6 +1,6 @@
 -- ========== Skippy 单位数据管理系统 ==========
 -- 作者：Wayne
--- 功能：监听 player/target/focus + party/raid
+-- 功能：监听 player/target/focus/nameplate + party/raid
 -- 版本：alpha 0.0.2
 
 if not Skippy then Skippy = {} end
@@ -21,12 +21,18 @@ local EnumPowerType = {
     ["SOUL_SHARDS"] = 7,
     ["LUNAR_POWER"] = 8,
     ["HOLY_POWER"] = 9,
+    ["MAELSTROM"] = 11,
     ["CHI"] = 12,
     ["INSANITY"] = 13,
+    ["BURNING_EMBERS"] = 14,
+    ["DEMONIC_FURY"] = 15,
     ["ARCANE_CHARGES"] = 16,
     ["FURY"] = 17,
     ["PAIN"] = 18,
+    ["ESSENCE"] = 19,
+    ["SHADOW_ORBS"] = 28,
 }
+
 -- 导入 table 函数
 local insert, remove, sort, wipe = table.insert, table.remove, table.sort, table.wipe
 
@@ -35,17 +41,23 @@ local ALL_UNITS = {}
 local UNITS = {}
 local GROUP = {}
 local BOSS = {}
+local NAMEPLATE = {}
 local function InitUnitMapping()
     wipe(ALL_UNITS)
     wipe(UNITS)
     wipe(GROUP)
     wipe(BOSS)
+    wipe(NAMEPLATE)
 
     UNITS["target"] = "target"
     UNITS["focus"] = "focus"
 
     for i = 1, 5 do
         BOSS["boss" .. i] = "boss" .. i
+    end
+
+    for i = 1, 40 do
+        NAMEPLATE["nameplate" .. i] = "nameplate" .. i
     end
 
     if IsInRaid() then
@@ -66,13 +78,15 @@ local function InitUnitMapping()
     for k, v in pairs(UNITS) do ALL_UNITS[k] = v end
     for k, v in pairs(GROUP) do ALL_UNITS[k] = v end
     for k, v in pairs(BOSS) do ALL_UNITS[k] = v end
+    for k, v in pairs(NAMEPLATE) do ALL_UNITS[k] = v end
 end
 
 -- ========== 2. 初始化数据结构 ==========
 local function InitGroupMembers()
-    Skippy.Units = {} -- 核心单位：player, target, focus, boss1~5
+    Skippy.Units = {}     -- 核心单位：player, target, focus, boss1~5
     Skippy.Group = {}
-    Skippy.Boss = {}  -- 首领：boss1~5
+    Skippy.Boss = {}      -- 首领：boss1~5
+    Skippy.Nameplate = {} -- 姓名板：nameplate1~40
     -- 初始化核心单位
     for unit, _ in pairs(UNITS) do
         Skippy.Units[unit] = { exists = UnitExists(unit) }
@@ -80,6 +94,10 @@ local function InitGroupMembers()
 
     for unit, _ in pairs(BOSS) do
         Skippy.Boss[unit] = { exists = UnitExists(unit) }
+    end
+
+    for unit, _ in pairs(NAMEPLATE) do
+        Skippy.Nameplate[unit] = { exists = UnitExists(unit) }
     end
 
     if IsInRaid() then    -- 在团队中
@@ -109,6 +127,8 @@ local function InitGroupMembers()
                 }
             end
         end
+    else
+        Skippy.Group = nil
     end
 end
 
@@ -131,10 +151,12 @@ local function GetUnitObj(unit)
         return Skippy.Group[unit]
     elseif BOSS[unit] then
         return Skippy.Boss[unit]
+    elseif NAMEPLATE[unit] then
+        return Skippy.Nameplate[unit]
     end
 end
 
--- 更新血量（计算百分比， （当前生命值 + 治疗预估 - 治疗吸收） / 最大生命值）
+-- 更新血量（自动计算百分比，吸收盾后血量）
 local function UpdateHealth(unit, key, getter)
     local obj = GetUnitObj(unit)
     if not obj then return end
@@ -148,7 +170,8 @@ local function UpdateHealth(unit, key, getter)
         local m = obj.maxHealth or 0
         local a = obj.healAbsorbs or 0
         local p = obj.healPrediction or 0
-        -- 吸收后血量百分比，最低0
+
+        obj.realPercentHealth = m > 0 and math.max(0, ((h - a) / m * 100)) or 0
         obj.percentHealth = m > 0 and math.max(0, ((h - a + p) / m * 100)) or 0
     end
 end
@@ -328,6 +351,31 @@ local function UpdateCoreUnit(unit)
     end
 end
 
+-- 通用函数：更新姓名板单位（nameplate1~40）
+local function UpdateNameplateUnit(unit)
+    local obj = Skippy.Nameplate[unit]
+    if not obj then return end
+    if UnitExists(unit) then
+        local minRange, maxRange = WeakAuras.GetRange(unit)
+        obj.exists = true
+        obj.name = GetUnitName(unit, true) or "无目标"
+        obj.GUID = UnitGUID(unit)
+        obj.canAttack = UnitCanAttack("player", unit)
+        obj.canAssist = UnitCanAssist("player", unit)
+        obj.isDead = UnitIsDeadOrGhost(unit)
+        obj.minRange = minRange
+        obj.maxRange = maxRange
+        obj.health = UnitHealth(unit)
+        obj.maxHealth = UnitHealthMax(unit)
+        obj.healAbsorbs = UnitGetTotalHealAbsorbs(unit)
+        obj.percentHealth = obj.maxHealth > 0 and
+            math.max(0, ((obj.health - obj.healAbsorbs) / obj.maxHealth * 100)) or 0
+        UpdateAuraFull(unit)
+    else
+        Skippy.Nameplate[unit] = { exists = false }
+    end
+end
+
 -- 通用函数：更新首领单位（boss1~5）
 local function UpdateBossUnit()
     C_Timer.After(1, function()
@@ -347,6 +395,8 @@ local function UpdateBossUnit()
                 obj.maxHealth = UnitHealthMax(unit)
                 obj.healAbsorbs = UnitGetTotalHealAbsorbs(unit)
                 obj.healPrediction = UnitGetIncomingHeals(unit) or 0
+                obj.realPercentHealth = obj.maxHealth > 0 and
+                    math.max(0, ((obj.health - obj.healAbsorbs) / obj.maxHealth * 100)) or 0
                 obj.percentHealth = obj.maxHealth > 0 and
                     math.max(0, ((obj.health - obj.healAbsorbs + obj.healPrediction) / obj.maxHealth * 100)) or 0
                 UpdateAuraFull(unit)
@@ -373,6 +423,8 @@ local function UpdateAllUnits()
                     obj.maxHealth = UnitHealthMax(unit)
                     obj.healAbsorbs = UnitGetTotalHealAbsorbs(unit)
                     obj.healPrediction = UnitGetIncomingHeals(unit) or 0
+                    obj.realPercentHealth = obj.maxHealth > 0 and
+                        math.max(0, ((obj.health - obj.healAbsorbs) / obj.maxHealth * 100)) or 0
                     obj.percentHealth = obj.maxHealth > 0 and
                         math.max(0, ((obj.health - obj.healAbsorbs + obj.healPrediction) / obj.maxHealth * 100)) or 100
                     obj.isDead = UnitIsDeadOrGhost(unit)
@@ -425,6 +477,8 @@ frame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 frame:RegisterEvent("UPDATE_SHAPESHIFT_FORMS")
 frame:RegisterEvent("PLAYER_TOTEM_UPDATE")
 frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
+frame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+frame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
 
 -- ========== 5. 事件处理 ==========
 frame:SetScript("OnEvent", function(self, event, arg1, arg2)
@@ -455,6 +509,10 @@ frame:SetScript("OnEvent", function(self, event, arg1, arg2)
         UpdateCoreUnit("target")
     elseif event == "PLAYER_FOCUS_CHANGED" then
         UpdateCoreUnit("focus")
+    elseif event == "NAME_PLATE_UNIT_ADDED" then
+        UpdateNameplateUnit(arg1)
+    elseif event == "NAME_PLATE_UNIT_REMOVED" then
+        Skippy.Nameplate[arg1] = { exists = false }
     elseif event == "ENCOUNTER_START" then
         UpdateBossUnit()
     elseif event == "ENCOUNTER_END" then
@@ -463,9 +521,11 @@ frame:SetScript("OnEvent", function(self, event, arg1, arg2)
         UpdateInRange(arg1, arg2)
     elseif event == "UNIT_SPELLCAST_SENT" and arg1 == "player" then
         Skippy.state.lastCastTargetName = arg2
-        for k, v in pairs(Skippy.Group) do
-            if v.name == Skippy.state.lastCastTargetName then
-                Skippy.state.lastCastTargetUnit = k
+        if Skippy.Group then
+            for k, v in pairs(Skippy.Group) do
+                if v.name == Skippy.state.lastCastTargetName then
+                    Skippy.state.lastCastTargetUnit = k
+                end
             end
         end
     elseif event == "UNIT_SPELLCAST_CHANNEL_START" and arg1 == "player" then
@@ -530,4 +590,3 @@ frame:SetScript("OnEvent", function(self, event, arg1, arg2)
         UpdateAllTotem()
     end
 end)
-
