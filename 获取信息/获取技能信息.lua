@@ -51,7 +51,7 @@ function Skippy.GetSpellInfo(spellIdentifier)
         local cooldowns = C_Spell.GetSpellCooldown(spellIdentifier)
         local charges = C_Spell.GetSpellCharges(spellIdentifier)
         local isUsable = C_Spell.IsSpellUsable(spellIdentifier)
-        local usable = isUsable and cd <= GCD and cooldowns.isEnabled
+        local usable = isUsable and cd <= GCD
 
         Skippy.spellInfo[spellIdentifier] = {
             info = info,
@@ -80,6 +80,7 @@ local function UpdateCooldowns(_, update)
     if elapsed >= 0.1 then
         local GCD = getCooldown(61304)
         for spellIdentifier in pairs(watchList) do
+            local cooldowns = C_Spell.GetSpellCooldown(spellIdentifier)
             if spellIdentifier then
                 local cd = getCooldown(spellIdentifier)
                 if cd and cd <= GCD then
