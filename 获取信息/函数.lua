@@ -65,6 +65,7 @@ local spellkey = {
     ["上个敌人"] = 51,
     ["停止施法"] = 52,
     ["种族技能"] = 53,
+    ["奥术洪流"] = 53,
 
     --驱散技能
     ["纯净术"] = 54,
@@ -115,7 +116,6 @@ local spellkey = {
     ["洞察圣印"] = 65,
 
     -- 萨满祭司
-
     ["治疗之泉图腾"] = 55,
     ["暴雨图腾"] = 55,
     ["激流"] = 56,
@@ -131,7 +131,7 @@ local spellkey = {
     ["大地之盾"] = 66,
 
     -- 德鲁伊
-    ["生命绽放"] = 66,
+    ["生命绽放"] = 55,
     ["愈合"] = 56,
     ["滋养"] = 57,
     ["迅捷治愈"] = 58,
@@ -139,6 +139,11 @@ local spellkey = {
     ["治疗之触"] = 60,
     ["自然迅捷"] = 61,
     ["野性成长"] = 62,
+    ["万灵之召"] = 63,
+    ["繁盛"] = 64,
+    ["甘霖"] = 65,
+    ["激活"] = 66,
+    ["林莽卫士"] = 67,
 
     -- 武僧
     ["复苏之雾"] = 55,
@@ -219,7 +224,8 @@ function Skippy.UnitHeal(unit, spell)
     end
 
     output = output ..
-        "焦点: " .. unit .. "(" .. spellkey[unit] .. ")" .. " \n技能: " .. spell .. "(" .. spellkey[spell] .. ")"
+        "目标:" .. unit .. "(" .. spellkey[unit] .. ")" ..
+        "\n技能:" .. spell .. "(" .. spellkey[spell] .. ")"
     Skippy.txt = output
     return true
 end
@@ -272,12 +278,10 @@ end
 
 local function makeAuraSet(auraTable)
     local set = {}
-    local count = 0
     for _, name in ipairs(auraTable or {}) do
         set[name] = true
-        count = count + 1
     end
-    return set, count
+    return set
 end
 
 -- @param castTime 施法剩余时间, 默认0.4秒
@@ -486,30 +490,28 @@ function Skippy.GetLowestUnitWithoutUnit(unitName)
     return lowestUnit, lowestHealth
 end
 
+-- 假设函数名修改为更贴切的名称，反映其查找 'Count' 个光环的单位
 -- @param auraTable 光环名称列表,如：{ "回春术", "回春术（萌芽）" }
 -- @param Count 指定光环数量,默认0
 -- @return 有指定光环生命值最低的单位, 生命值百分比
-function Skippy.GetLowestUnitWithDifferentAuraCount(auraTable, Count)
+function Skippy.GetLowestUnitWithExactAuraCount(auraTable, Count)
     Count = Count or 0
-    local auraCount = 0
     local lowestUnit = nil
     local lowestHealth = 100
-    local auraSet, SetCount = makeAuraSet(auraTable)
+    local auraSet = makeAuraSet(auraTable)
     for unit, data in pairs(Skippy.Group) do
-        local percentHealth = data.percentHealth
+        local auraCount = 0
         if existsUnit(data) then
+            local percentHealth = data.realPercentHealth
             for _, aura in pairs(data.aura) do
-                if auraSet[aura.name] and aura.sourceUnit == "player" then
+                if aura.sourceUnit == "player" and auraSet[aura.name] then
                     auraCount = auraCount + 1
-                    if auraCount >= SetCount then
-                        break
-                    end
                 end
             end
+
             if auraCount == Count and percentHealth < lowestHealth then
                 lowestHealth = percentHealth
                 lowestUnit = unit
-                break
             end
         end
     end
@@ -1130,6 +1132,38 @@ function Skippy.GetUnitWithAuraAndAuraCount(auraName, auraName2)
     end
 
     return units
+end
+
+function Skippy.FindRejuvenation()
+    local noRejuUnit, noRejuHealth = nil, 100
+    local oneRejuUnit, oneRejuHealth = nil, 100
+
+    for unit, data in pairs(Skippy.Group) do
+        local health = data.realPercentHealth
+        if existsUnit(data) then
+            local hasReju = false
+            local hasGerm = false
+            for _, aura in pairs(data.aura) do
+                if aura.sourceUnit == "player" then
+                    if aura.spellId == 774 then
+                        hasReju = true
+                    elseif aura.spellId == 155777 then
+                        hasGerm = true
+                    end
+                end
+            end
+            if not hasReju and not hasGerm and health < noRejuHealth then
+                noRejuHealth = health
+                noRejuUnit = unit
+            end
+
+            if hasReju ~= hasGerm and health < oneRejuHealth then
+                oneRejuHealth = health
+                oneRejuUnit = unit
+            end
+        end
+    end
+    return noRejuUnit, noRejuHealth, oneRejuUnit, oneRejuHealth
 end
 
 -- @param dispelName "Curse", "Disease", "Magic", "Poison", and "". "" 是激怒效果.
