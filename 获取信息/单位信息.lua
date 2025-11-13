@@ -349,6 +349,13 @@ local function UpdateCoreUnit(unit)
         wipe(obj)
         obj.exists = false
     end
+    if obj.idDead then
+        for k, v in pairs(Skippy.Group) do
+            if v.name == obj.name then
+                v.isDead = true
+            end
+        end
+    end
 end
 
 -- 通用函数：更新姓名板单位（nameplate1~40）
