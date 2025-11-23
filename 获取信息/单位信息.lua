@@ -335,6 +335,7 @@ local function UpdateCoreUnit(unit)
         obj.exists = true
         obj.name = GetUnitName(unit, true) or "无目标"
         obj.GUID = UnitGUID(unit)
+        obj.creatureType, obj.creatureID = UnitCreatureType(unit) or "UNKNOWN", 0
         obj.canAttack = UnitCanAttack("player", unit)
         obj.canAssist = UnitCanAssist("player", unit)
         obj.isDead = UnitIsDeadOrGhost(unit)
@@ -349,10 +350,10 @@ local function UpdateCoreUnit(unit)
         wipe(obj)
         obj.exists = false
     end
-    if obj.idDead then
+    if obj.isDead then
         for k, v in pairs(Skippy.Group) do
             if v.name == obj.name then
-                v.isDead = true
+                v.isDead = UnitIsDeadOrGhost(unit)
             end
         end
     end
@@ -367,6 +368,7 @@ local function UpdateNameplateUnit(unit)
         obj.exists = true
         obj.name = GetUnitName(unit, true) or "无目标"
         obj.GUID = UnitGUID(unit)
+        obj.creatureType, obj.creatureID = UnitCreatureType(unit) or "UNKNOWN", 0
         obj.canAttack = UnitCanAttack("player", unit)
         obj.canAssist = UnitCanAssist("player", unit)
         obj.isDead = UnitIsDeadOrGhost(unit)
@@ -394,6 +396,7 @@ local function UpdateBossUnit()
                 obj.exists = true
                 obj.name = GetUnitName(unit, true) or "未知"
                 obj.GUID = UnitGUID(unit)
+                obj.creatureType, obj.creatureID = UnitCreatureType(unit) or "UNKNOWN", 0
                 obj.canAttack = UnitCanAttack("player", unit)
                 obj.canAssist = UnitCanAssist("player", unit)
                 obj.isDead = UnitIsDeadOrGhost(unit)
@@ -435,6 +438,7 @@ local function UpdateAllUnits()
                     obj.percentHealth = obj.maxHealth > 0 and
                         math.max(0, ((obj.health - obj.healAbsorbs + obj.healPrediction) / obj.maxHealth * 100)) or 100
                     obj.isDead = UnitIsDeadOrGhost(unit)
+                    obj.creatureType, obj.creatureID = UnitCreatureType(unit) or "UNKNOWN", 0
                     obj.canAttack = UnitCanAttack("player", unit)
                     obj.canAssist = UnitCanAssist("player", unit)
                     obj.inRange = UnitInRange(unit)
