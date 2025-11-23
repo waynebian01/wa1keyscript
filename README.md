@@ -23,7 +23,11 @@ Wa1Key文件夹内容适用于Wa1Key程序，其他文件需写入WeakAura2插�
     
 ### 熊猫人
 * 队伍: *神牧*, *奶骑*, *奶德*, *奶萨*，*奶僧*
-* 团队: *无*
+* 团队: *奶骑*
+
+### 泰坦重铸
+* 队伍：*奶骑*
+* 团队：*无*
 
 ## 使用方法(首次使用):
 1. 将Skippy.lua放入Wa1Key目录\module
@@ -45,3 +49,8 @@ Wa1Key文件夹内容适用于Wa1Key程序，其他文件需写入WeakAura2插�
 的单位释放[生命绽放](https://www.wowhead.com/mop-classic/cn/spell=33763).
         * 因无法监控[野性蘑菇](https://www.wowhead.com/mop-classic/cn/spell=145205)
 ,需要自己手动施放或引爆.
+
+* 泰坦重铸
+    * 奶骑
+        * 需要点出天赋[圣光道标]才能运行，如果需要从10级运行，需要在wa里的载入修改
+        
