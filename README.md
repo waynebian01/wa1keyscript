@@ -4,6 +4,8 @@
 
 Wa1Key使用方法请参考 [Wa1Key项目](https://github.com/wa1key/wa1key)。
 
+模块下载地址:https://github.com/waynebian01/wa1keyscript/releases/download/%E6%A8%A1%E5%9D%97/Skippy.wa1key
+
 Wa1Key文件夹内容适用于Wa1Key程序，其他文件需写入WeakAura2插件内。
 
 ## 使用方法(首次使用):
@@ -54,5 +56,6 @@ Wa1Key文件夹内容适用于Wa1Key程序，其他文件需写入WeakAura2插�
     * 奶骑
         * 需要点出天赋[圣光道标]才能运行，如果需要从10级运行，需要在wa里的载入修改
         
+
 
 
