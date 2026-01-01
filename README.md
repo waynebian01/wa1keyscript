@@ -7,7 +7,7 @@ Wa1Key使用方法请参考 [Wa1Key项目](https://github.com/wa1key/wa1key)。
 Wa1Key文件夹内容适用于Wa1Key程序，其他文件需写入WeakAura2插件内。
 
 ## 使用方法(首次使用):
-1. 将Skippy.lua放入Wa1Key目录\module
+1. 将Skippy.wa1key放入Wa1Key目录\module
 2. 启动游戏
 3. 启动Wa1Key
 4. 选择将Skippy模块
@@ -54,4 +54,5 @@ Wa1Key文件夹内容适用于Wa1Key程序，其他文件需写入WeakAura2插�
     * 奶骑
         * 需要点出天赋[圣光道标]才能运行，如果需要从10级运行，需要在wa里的载入修改
         
+
 
