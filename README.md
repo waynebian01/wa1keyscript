@@ -1,4 +1,4 @@
-# Wa1Keyscript
+# Wa1KeyScript
 
 基于Wa1Key编写的自定义脚本脚本,需要WeakAura插件。
 
@@ -32,6 +32,7 @@ Wa1Key使用方法请参考 [Wa1Key项目](https://github.com/wa1key/wa1key)。
     * 奶骑
         * 需要点出天赋[圣光道标]才能运行，如果需要从10级运行，需要在wa里的载入修改
         
+
 
 
 
