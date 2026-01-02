@@ -5,15 +5,7 @@
 Wa1Key使用方法请参考 [Wa1Key项目](https://github.com/wa1key/wa1key)。
 
 ## 使用方法(首次使用):
-1. [点击这里](https://github.com/waynebian01/wa1keyscript/releases/download/%E6%A8%A1%E5%9D%97/Skippy.wa1key)下载模块
-2. 将Skippy.wa1key放入Wa1Key目录\module
-3. 启动游戏
-4. 启动Wa1Key
-5. 选择Skippy模块
-6. 进入游戏
-7. 打开WA插件,根据游戏版本导入模块里的字符串
-8. 重载 /reload ui
-9. 如果还不行，重复以上步骤
+### 点击[这里](https://github.com/waynebian01/wa1keyscript/wiki)转到Wiki界面
 
 ## 支持的治疗: 
 
@@ -40,6 +32,7 @@ Wa1Key使用方法请参考 [Wa1Key项目](https://github.com/wa1key/wa1key)。
     * 奶骑
         * 需要点出天赋[圣光道标]才能运行，如果需要从10级运行，需要在wa里的载入修改
         
+
 
 
 
