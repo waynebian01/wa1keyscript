@@ -1,5 +1,5 @@
 -- CLEU:UNIT_DIED, CLEU:SPELL_MISSED
-function C(event, timestamp, subEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID,
+function CLEU(event, timestamp, subEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID,
            destName, destFlags, destRaidFlags, ...)
     -- 处理单位死亡
     if subEvent == "UNIT_DIED" then
