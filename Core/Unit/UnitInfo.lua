@@ -1,136 +1,51 @@
--- Skippy 单位数据获取
+-- Skippy Units
 -- 作者：Wayne
 -- 功能：监听 player/target/focus/nameplate + party/raid
--- 版本：alpha 0.0.3
+-- 版本：alpha 0.0.6
 
 if not Skippy then Skippy = {} end
-local e = aura_env
+local isRetail = WeakAuras.IsRetail()
+-- 初始化根表
+Skippy.Units = {}     -- 核心单位： target, focus
+Skippy.Boss = {}      -- 首领：boss1~5
+Skippy.Nameplate = {} -- 姓名板：nameplate1~40
+Skippy.Group = {}     -- 队伍成员： party1~4, raid1~40
 
--- 1. 单位映射表
-e.All_Units = {}
-local units = {}
-local group = {}
-local boss = {}
-local nameplate = {}
-
-function e.InitUnitMapping()
-    table.wipe(e.All_Units)
-    table.wipe(units)
-    table.wipe(group)
-    table.wipe(boss)
-    table.wipe(nameplate)
-
-    units["target"] = "target"
-    units["focus"] = "focus"
-
-    for i = 1, 5 do
-        boss["boss" .. i] = "boss" .. i
-    end
-
-    for i = 1, 40 do
-        nameplate["nameplate" .. i] = "nameplate" .. i
-    end
-
-    if UnitInRaid("player") then
-        units["player"] = "player"
-        for i = 1, 40 do
-            group["raid" .. i] = { index = i, unit = "raid" .. i }
-        end
-    elseif UnitInParty("player") then
-        group["player"] = "player"
-        for i = 1, 4 do
-            group["party" .. i] = { index = i, unit = "party" .. i }
-        end
-    else
-        units["player"] = "player"
-    end
-
-    -- 合并所有单位（用于事件判断）
-    for k, v in pairs(units) do e.All_Units[k] = v end
-    for k, v in pairs(group) do e.All_Units[k] = v end
-    for k, v in pairs(boss) do e.All_Units[k] = v end
-    for k, v in pairs(nameplate) do e.All_Units[k] = v end
-end
-
-e.InitUnitMapping()
---  2. 初始化数据结构
-function e.InitGroupMembers()
-    Skippy.Units = {}     -- 核心单位：player, target, focus, boss1~5
-    Skippy.Group = {}
-    Skippy.Boss = {}      -- 首领：boss1~5
-    Skippy.Nameplate = {} -- 姓名板：nameplate1~40
-    -- 初始化核心单位
-    for unit, _ in pairs(units) do
-        Skippy.Units[unit] = { exists = UnitExists(unit) }
-    end
-
-    for unit, _ in pairs(boss) do
-        Skippy.Boss[unit] = { exists = UnitExists(unit) }
-    end
-
-    for unit, _ in pairs(nameplate) do
-        Skippy.Nameplate[unit] = { exists = UnitExists(unit) }
-    end
-
-    if UnitInRaid("player") then -- 在团队中
-        Skippy.Group = {}        -- 队伍成员： raid1~40
-        for unit, data in pairs(group) do
-            local _, _, subgroup = GetRaidRosterInfo(data.index)
-            local isPlayer = UnitIsUnit("player", unit)
-            local exists = UnitExists(unit)
-            if exists then
-                Skippy.Group[unit] = {
-                    exists = exists,
-                    isPlayer = isPlayer,
-                    index = data.index,
-                    subgroup = subgroup,
-                    aura = {}
-                }
-            end
-        end
-    elseif UnitInParty("player") then -- 在小队中
-        Skippy.Group = {}             -- 队伍成员：party1~4
-        for unit, data in pairs(group) do
-            local exists = UnitExists(unit)
-            if exists then
-                Skippy.Group[unit] = {
-                    exists = exists,
-                    aura = {}
-                }
-            end
-        end
-    else
-        Skippy.Group = nil
-    end
-end
-
-e.InitGroupMembers()
---  3. 通用工具函数
 -- 获取单位对象
-local function GetUnitObj(unit)
-    if units[unit] then
-        return Skippy.Units[unit]
-    elseif group[unit] then
-        return Skippy.Group[unit]
-    elseif boss[unit] then
-        return Skippy.Boss[unit]
-    elseif nameplate[unit] then
-        return Skippy.Nameplate[unit]
-    end
+function aura_env.GetUnitObj(unit)
+    if not unit then return nil end
+    return Skippy.Units[unit] or
+        Skippy.Group[unit] or
+        Skippy.Boss[unit] or
+        Skippy.Nameplate[unit]
 end
 
 -- 获取预估治疗量
 function aura_env.GetIncomingHeals(unit)
-    if WeakAuras.IsRetail() then
+    if isRetail then -- 正式服不预估治疗量
         return 0
     else
         return UnitGetIncomingHeals(unit) or 0
     end
 end
 
+-- 获取单位完整血量
+function aura_env.GetFullHealth(unit)
+    local obj = aura_env.GetUnitObj(unit)
+    if not obj then return end
+    obj.health = UnitHealth(unit)
+    obj.healthMax = UnitHealthMax(unit)
+    obj.healAbsorbs = UnitGetTotalHealAbsorbs(unit)
+    obj.healPrediction = aura_env.GetIncomingHeals(unit)
+    obj.realHealthPercent = obj.healthMax > 0 and
+        math.max(0, ((obj.health - obj.healAbsorbs) / obj.healthMax * 100)) or 0
+    obj.healthPercent = obj.healthMax > 0 and
+        math.max(0, ((obj.health - obj.healAbsorbs + obj.healPrediction) / obj.healthMax * 100)) or 0
+end
+
 -- 更新血量（自动计算百分比，吸收盾后血量）
-function e.UpdateHealth(unit, key, getter)
-    local obj = GetUnitObj(unit)
+function aura_env.UpdateHealth(unit, key, getter)
+    local obj = aura_env.GetUnitObj(unit)
     if not obj or not key or not getter then return end
 
     obj[key] = getter(unit)
@@ -140,35 +55,49 @@ function e.UpdateHealth(unit, key, getter)
     end
 
     local h = obj.health or 0
-    local m = obj.maxHealth or 0
+    local m = obj.healthMax or 0
     local a = obj.healAbsorbs or 0
     local p = obj.healPrediction or 0
-    if WeakAuras.IsRetail() then
-        obj.percentHealth = m > 0 and math.max(0, ((h - a) / m * 100)) or 0
-    else
-        obj.percentHealth = m > 0 and math.max(0, ((h - a + p) / m * 100)) or 0
-    end
+
+    obj.healthPercent = m > 0 and math.max(0, ((h - a + p) / m * 100)) or 0
+    obj.realHealthPercent = m > 0 and math.max(0, ((h - a) / m * 100)) or 0
 end
 
--- 更新是否在范围内
-function e.UpdateInRange(unit, inRange)
-    local obj = GetUnitObj(unit)
+-- 更新是否在范围内,事件更新，仅在正式服有效
+function aura_env.UpdateInRange(unit, inRange)
+    local obj = aura_env.GetUnitObj(unit)
     if not obj then return end
     obj.inRange = inRange
 end
 
--- 检测单位敌对状态
-function e.UpdateFaction(unit)
-    local obj = GetUnitObj(unit)
+-- 更新单位距离
+function aura_env.UpdateMaxAndMinRange(unit)
+    local obj = aura_env.GetUnitObj(unit)
+    if not obj then return end
+    local minRange, maxRange = WeakAuras.GetRange(unit)
+    obj.minRange = minRange
+    obj.maxRange = maxRange
+end
+
+-- 检测单位敌对状态,事件更新，仅在正式服有效
+function aura_env.UpdateFaction(unit)
+    local obj = aura_env.GetUnitObj(unit)
     if not obj then return end
     obj.canAttack = UnitCanAttack("player", unit)
     obj.canAssist = UnitCanAssist("player", unit)
 end
 
+-- 检测单位存活状态
+function aura_env.UpdateIsDead(unit)
+    local obj = aura_env.GetUnitObj(unit)
+    if not obj then return end
+    obj.isDead = UnitIsDeadOrGhost(unit)
+end
+
 -- 完整刷新光环
 local function UpdateAuraFull(unit)
-    local obj = GetUnitObj(unit)
-    if not obj or not UnitExists(unit) then return end
+    local obj = aura_env.GetUnitObj(unit)
+    if not obj then return end
     obj.aura = {}
     for i = 1, 40 do
         local buff = C_UnitAuras.GetBuffDataByIndex(unit, i)
@@ -182,9 +111,9 @@ local function UpdateAuraFull(unit)
     end
 end
 
--- 增量更新光环
-function e.UpdateAuraIncremental(unit, info)
-    local obj = GetUnitObj(unit)
+-- 增量更新光环,事件更新
+function aura_env.UpdateAuraIncremental(unit, info)
+    local obj = aura_env.GetUnitObj(unit)
     if not obj then return end
     if not obj.aura then obj.aura = {} end
     if info.isFullUpdate then
@@ -214,145 +143,170 @@ function e.UpdateAuraIncremental(unit, info)
     end
 end
 
--- 通用函数：更新核心单位（target / focus）
-function e.UpdateCoreUnit(unit)
-    local obj = Skippy.Units[unit]
-    if not obj then return end
+function aura_env.CheckUnitInsight()
+    if Skippy.state.CastTargetUnit then
+        local obj = aura_env.GetUnitObj(Skippy.state.CastTargetUnit)
+        if not obj then return end
+        obj.inSight = false
+        if obj.inSightTimer then
+            obj.inSightTimer:Cancel()
+            obj.inSightTimer = nil
+        end
+        obj.inSightTimer = C_Timer.NewTimer(1, function()
+            obj.inSight = true
+            obj.inSightTimer = nil
+        end)
+    end
+end
+
+-- 更新核心单位（target / focus）
+function aura_env.UpdateCoreUnit(unit)
     if UnitExists(unit) then
+        Skippy.Units[unit] = {}
+        local obj = Skippy.Units[unit]
         local creatureType, creatureID = UnitCreatureType(unit)
-        local minRange, maxRange = WeakAuras.GetRange(unit)
         obj.exists = true
+        obj.immuneSpells = {}
         obj.name = GetUnitName(unit, true) or "无目标"
         obj.GUID = UnitGUID(unit)
         obj.creatureType = creatureType or "UNKNOWN"
         obj.creatureID = creatureID or 0
-        obj.canAttack = UnitCanAttack("player", unit)
-        obj.canAssist = UnitCanAssist("player", unit)
         obj.isDead = UnitIsDeadOrGhost(unit)
         obj.inRange = UnitInRange(unit)
-        obj.minRange = minRange
-        obj.maxRange = maxRange
-        obj.health = UnitHealth(unit)
-        obj.maxHealth = UnitHealthMax(unit)
-        obj.healAbsorbs = UnitGetTotalHealAbsorbs(unit)
-        obj.percentHealth = obj.maxHealth > 0 and
-            math.max(0, ((obj.health - obj.healAbsorbs) / obj.maxHealth * 100)) or 0
-        UpdateAuraFull(unit)
-    else
-        table.wipe(obj)
-        obj.exists = false
-    end
-    if Skippy.Group and obj.isDead then
-        for k, v in pairs(Skippy.Group) do
-            if v.name == obj.name then
-                v.isDead = UnitIsDeadOrGhost(unit)
-            end
+        aura_env.UpdateFaction(unit)
+        aura_env.UpdateMaxAndMinRange(unit)
+        aura_env.GetFullHealth(unit) -- 获取完整血量
+        UpdateAuraFull(unit)         -- 更新完整光环
+        -- 更新队伍成员存活状态
+        if Skippy.Group and Skippy.Group[unit] then
+            Skippy.Group[unit].isDead = obj.isDead
         end
+    else -- 单位不存在
+        Skippy.Units[unit] = nil
     end
 end
 
--- 通用函数：更新姓名板单位（nameplate1~40）
-function e.UpdateNameplateUnit(unit)
-    local obj = Skippy.Nameplate[unit]
-    if not obj then return end
+aura_env.UpdateCoreUnit("target")
+aura_env.UpdateCoreUnit("focus")
+
+-- 更新姓名板单位（nameplate1~40）
+function aura_env.UpdateNameplateUnit(unit)
     if UnitExists(unit) then
-        local minRange, maxRange = WeakAuras.GetRange(unit)
+        Skippy.Nameplate[unit] = {}
+        local obj = Skippy.Nameplate[unit]
         local creatureType, creatureID = UnitCreatureType(unit)
         obj.exists = true
         obj.name = GetUnitName(unit, true) or "无目标"
         obj.GUID = UnitGUID(unit)
         obj.creatureType = creatureType or "UNKNOWN"
         obj.creatureID = creatureID or 0
-        obj.canAttack = UnitCanAttack("player", unit)
-        obj.canAssist = UnitCanAssist("player", unit)
         obj.isDead = UnitIsDeadOrGhost(unit)
-        obj.minRange = minRange
-        obj.maxRange = maxRange
-        obj.health = UnitHealth(unit)
-        obj.maxHealth = UnitHealthMax(unit)
-        obj.healAbsorbs = UnitGetTotalHealAbsorbs(unit)
-        obj.healPrediction = aura_env.GetIncomingHeals(unit)
-        obj.realPercentHealth = obj.maxHealth > 0 and
-            math.max(0, ((obj.health - obj.healAbsorbs) / obj.maxHealth * 100)) or 0
-        obj.percentHealth = obj.maxHealth > 0 and
-            math.max(0, ((obj.health - obj.healAbsorbs + obj.healPrediction) / obj.maxHealth * 100)) or 0
-        UpdateAuraFull(unit)
-    else
-        Skippy.Nameplate[unit] = { exists = false }
+        aura_env.UpdateFaction(unit)
+        aura_env.UpdateMaxAndMinRange(unit)
+        aura_env.GetFullHealth(unit) -- 获取完整血量
+        UpdateAuraFull(unit)         -- 更新完整光环
+    else                             -- 单位不存在
+        Skippy.Nameplate[unit] = nil
     end
 end
 
--- 通用函数：更新首领单位（boss1~5）
-function e.UpdateBossUnit()
+-- 初始化姓名板单位
+function aura_env.InitNameplateUnit()
+    for i = 1, 40 do
+        local unit = "nameplate" .. i
+        aura_env.UpdateNameplateUnit(unit)
+    end
+end
+
+aura_env.InitNameplateUnit()
+
+-- 更新首领单位（boss1~5）
+function aura_env.UpdateBossUnit(unit)
+    if UnitExists(unit) then
+        Skippy.Boss[unit] = {}
+        local obj = Skippy.Boss[unit]
+        local creatureType, creatureID = UnitCreatureType(unit)
+        obj.exists = true
+        obj.name = GetUnitName(unit, true) or "未知"
+        obj.GUID = UnitGUID(unit)
+        obj.creatureType = creatureType or "UNKNOWN"
+        obj.creatureID = creatureID or 0
+        obj.isDead = UnitIsDeadOrGhost(unit)
+        aura_env.UpdateFaction(unit)        -- 更新敌对状态
+        aura_env.UpdateMaxAndMinRange(unit) -- 更新单位距离
+        aura_env.GetFullHealth(unit)        -- 获取完整血量
+        UpdateAuraFull(unit)                -- 更新完整光环
+    else
+        Skippy.Boss[unit] = nil
+    end
+end
+
+function aura_env.InitBossUnit()
     C_Timer.After(1, function()
         for i = 1, 5 do
             local unit = "boss" .. i
-            local obj = Skippy.Boss[unit]
-            if not obj then return end
-            if UnitExists(unit) then
-                local creatureType, creatureID = UnitCreatureType(unit)
-                obj.exists = true
-                obj.name = GetUnitName(unit, true) or "未知"
-                obj.GUID = UnitGUID(unit)
-                obj.creatureType = creatureType or "UNKNOWN"
-                obj.creatureID = creatureID or 0
-                obj.canAttack = UnitCanAttack("player", unit)
-                obj.canAssist = UnitCanAssist("player", unit)
-                obj.isDead = UnitIsDeadOrGhost(unit)
-                obj.inRange = UnitInRange(unit)
-                obj.health = UnitHealth(unit)
-                obj.maxHealth = UnitHealthMax(unit)
-                obj.healAbsorbs = UnitGetTotalHealAbsorbs(unit)
-                obj.healPrediction = aura_env.GetIncomingHeals(unit)
-                obj.realPercentHealth = obj.maxHealth > 0 and
-                    math.max(0, ((obj.health - obj.healAbsorbs) / obj.maxHealth * 100)) or 0
-                obj.percentHealth = obj.maxHealth > 0 and
-                    math.max(0, ((obj.health - obj.healAbsorbs + obj.healPrediction) / obj.maxHealth * 100)) or 0
-                UpdateAuraFull(unit)
-            else
-                table.wipe(obj)
-                obj.exists = false
-            end
+            aura_env.UpdateBossUnit(unit)
         end
     end)
 end
 
--- 更新所有单位
-function e.UpdateAllUnits()
-    C_Timer.After(2, function() -- 延迟确保单位加载
-        for unit, data in pairs(e.All_Units) do
-            local obj = GetUnitObj(unit)
-            local exists = UnitExists(unit)
-            if exists then
-                local creatureType, creatureID = UnitCreatureType(unit)
-                if obj then
-                    obj.name = GetUnitName(unit, true) or "未知"
-                    obj.GUID = UnitGUID(unit)
-                    obj.health = UnitHealth(unit)
-                    obj.maxHealth = UnitHealthMax(unit)
-                    obj.healAbsorbs = UnitGetTotalHealAbsorbs(unit)
-                    obj.healPrediction = aura_env.GetIncomingHeals(unit)
-                    obj.realPercentHealth = obj.maxHealth > 0 and
-                        math.max(0, ((obj.health - obj.healAbsorbs) / obj.maxHealth * 100)) or 0
-                    obj.percentHealth = obj.maxHealth > 0 and
-                        math.max(0, ((obj.health - obj.healAbsorbs + obj.healPrediction) / obj.maxHealth * 100)) or 100
-                    obj.isDead = UnitIsDeadOrGhost(unit)
-                    obj.creatureType = creatureType or "UNKNOWN"
-                    obj.creatureID = creatureID or 0
-                    obj.canAttack = UnitCanAttack("player", unit)
-                    obj.canAssist = UnitCanAssist("player", unit)
-                    obj.inRange = UnitInRange(unit)
-                    obj.role = UnitGroupRolesAssigned(unit) or "NONE"
-                    obj.inSight = true
-                    obj.inSightTimer = nil
-                    obj.aura = {}
-                    UpdateAuraFull(unit)
-                else
-                    obj.exists = false
-                end
-            end
+aura_env.InitBossUnit()
+
+-- 更新队伍单位(player, party1~4, raid1~40)
+local group = {}
+function aura_env.UpdateGroupUnit()
+    table.wipe(group)
+    Skippy.Group = {}
+    for unit in WA_IterateGroupMembers() do
+        table.insert(group, unit)
+        if UnitExists(unit) then
+            Skippy.Group[unit] = {}
+            local obj = Skippy.Group[unit]
+            local creatureType, creatureID = UnitCreatureType(unit)
+            obj.exists = true
+            obj.name = GetUnitName(unit, true) or "未知"
+            obj.GUID = UnitGUID(unit)
+            obj.creatureType = creatureType or "UNKNOWN"
+            obj.creatureID = creatureID or 0
+            obj.isDead = UnitIsDeadOrGhost(unit)
+            aura_env.UpdateFaction(unit)        -- 更新敌对状态
+            aura_env.UpdateMaxAndMinRange(unit) -- 更新单位距离
+            aura_env.GetFullHealth(unit)        -- 获取完整血量
+            UpdateAuraFull(unit)                -- 更新完整光环
+        else                                    -- 单位不存在
+            Skippy.Group[unit] = nil
         end
-    end)
+    end
 end
 
-e.UpdateAllUnits()
+aura_env.UpdateGroupUnit()
+
+
+aura_env.updateIndex = 1
+
+function aura_env.UpdateGroupInfo()
+    local numUnits = #group
+    if numUnits > 0 then
+        -- 如果人数变动导致索引越界，重置索引
+        if aura_env.updateIndex > numUnits then
+            aura_env.updateIndex = 1
+        end
+        -- 执行核心逻辑：仅针对当前索引的单位
+        local unit = group[aura_env.updateIndex]
+        local obj = aura_env.GetUnitObj(unit)
+
+        if obj then
+            local minRange, maxRange = WeakAuras.GetRange(unit)
+            if not isRetail then obj.inRange = UnitInRange(unit) end
+            obj.canAssist = UnitCanAssist("player", unit)
+            obj.minRange = minRange
+            obj.maxRange = maxRange
+        end
+
+        -- 索引递增，准备下一帧更新下一个单位
+        aura_env.updateIndex = aura_env.updateIndex + 1
+        if aura_env.updateIndex > numUnits then
+            aura_env.updateIndex = 1
+        end
+    end
+end
