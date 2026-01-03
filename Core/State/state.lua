@@ -1,7 +1,7 @@
 --  Skippy 玩家状态
 -- 作者：Wayne
 -- 功能：监听 player 玩家状态
--- 版本：alpha 0.0.3
+-- 版本：alpha 0.0.6
 
 if not Skippy then Skippy = {} end
 local e = aura_env
@@ -58,22 +58,20 @@ local EnumPowerType = {
 
 -- 更新玩家队伍状态
 function e.UpdateGroup()
-    local inParty = UnitPlayerOrPetInParty("player")
-    local inRaid = UnitPlayerOrPetInRaid("player")
-    Skippy.state.inParty = inParty
-    Skippy.state.inRaid = inRaid
+    Skippy.state.inParty = UnitPlayerOrPetInParty("player")
+    Skippy.state.inRaid = UnitPlayerOrPetInRaid("player")
 end
 
 e.UpdateGroup()
 
 -- 更新血量（自动计算百分比，吸收盾后血量）
-function e.UpdateHealth(key, getter)
+function e.UpdatePlayerHealth(key, getter)
     local unit = "player"
     Skippy.state.health[key] = getter(unit)
 
     local health = Skippy.state.health
     local h = health.health or 0
-    local m = health.maxHealth or 0
+    local m = health.healthMax or 0
     local a = health.healAbsorbs or 0
     local p = health.healPrediction or 0
     if isRetail then
@@ -87,11 +85,11 @@ end
 function e.GetHealthPercent()
     local health = Skippy.state.health
     health.health = UnitHealth("player")
-    health.maxHealth = UnitHealthMax("player")
+    health.healthMax = UnitHealthMax("player")
     health.healAbsorbs = UnitGetTotalHealAbsorbs("player")
     health.healPrediction = UnitGetIncomingHeals("player") or 0
     local h = health.health or 0
-    local m = health.maxHealth or 0
+    local m = health.healthMax or 0
     local a = health.healAbsorbs or 0
     local p = health.healPrediction or 0
     if isRetail then
@@ -210,8 +208,9 @@ function e.UpdateAuraFull()
 end
 
 e.UpdateAuraFull()
+
 -- 增量更新光环
-function e.UpdateAuraIncremental(info)
+function e.UpdatePlayerAuraIncremental(info)
     local unit = "player"
     if info.isFullUpdate then
         e.UpdateAuraFull()
