@@ -1,20 +1,19 @@
 -- UNIT_HEALTH, UNIT_MAXHEALTH, UNIT_HEAL_ABSORB_AMOUNT_CHANGED, UNIT_HEAL_PREDICTION, UNIT_POWER_UPDATE, UNIT_AURA, UNIT_SPELLCAST_SENT, UNIT_SPELLCAST_CHANNEL_START, UNIT_SPELLCAST_CHANNEL_STOP, UNIT_SPELLCAST_START, UNIT_SPELLCAST_STOP, UNIT_INVENTORY_CHANGED, PLAYER_STARTED_MOVING, PLAYER_STOPPED_MOVING, PLAYER_REGEN_DISABLED, PLAYER_REGEN_ENABLED, PLAYER_TALENT_UPDATE, UPDATE_SHAPESHIFT_FORM, UPDATE_SHAPESHIFT_FORMS, PLAYER_TOTEM_UPDATE, PLAYER_ENTERING_WORLD, GROUP_ROSTER_UPDATE
 
-
 function State(event, arg1, arg2)
     local e = aura_env
     if event == "UNIT_HEALTH" and arg1 == "player" then
-        e.UpdateHealth("health", UnitHealth)
+        e.UpdatePlayerHealth("health", UnitHealth)
     elseif event == "UNIT_MAXHEALTH" and arg1 == "player" then
-        e.UpdateHealth("maxHealth", UnitHealthMax)
+        e.UpdatePlayerHealth("healthMax", UnitHealthMax)
     elseif event == "UNIT_HEAL_ABSORB_AMOUNT_CHANGED" and arg1 == "player" then
-        e.UpdateHealth("healAbsorbs", UnitGetTotalHealAbsorbs)
+        e.UpdatePlayerHealth("healAbsorbs", UnitGetTotalHealAbsorbs)
     elseif event == "UNIT_HEAL_PREDICTION" and arg1 == "player" then
-        e.UpdateHealth("healPrediction", UnitGetIncomingHeals)
+        e.UpdatePlayerHealth("healPrediction", UnitGetIncomingHeals)
     elseif event == "UNIT_POWER_UPDATE" and arg1 == "player" then
         e.UpdatePower("player", arg2)
     elseif event == "UNIT_AURA" and arg1 == "player" then
-        e.UpdateAuraIncremental(arg2)
+        e.UpdatePlayerAuraIncremental(arg2)
     elseif event == "UNIT_SPELLCAST_SENT" and arg1 == "player" then
         Skippy.state.CastTargetName = arg2
         if Skippy.state.inParty or Skippy.state.inRaid then
@@ -52,11 +51,14 @@ function State(event, arg1, arg2)
         e.UpdateTotem(arg1)
     elseif event == "UNIT_INVENTORY_CHANGED" and arg1 == "player" then
         Skippy.state.hasMainHandEnchant = GetWeaponEnchantInfo()
-    elseif event == "PLAYER_ENTERING_WORLD" or event == "GROUP_ROSTER_UPDATE" then
+    elseif event == "PLAYER_ENTERING_WORLD" then
         e.UpdateSpec()
         e.UpdateGroup()
         e.UpdateAllPower()
         e.GetHealthPercent()
         e.UpdateAllTotem()
+        e.UpdateAuraFull()
+    elseif event == "GROUP_ROSTER_UPDATE" then
+        e.UpdateGroup()
     end
 end
