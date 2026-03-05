@@ -1,0 +1,365 @@
+import os   # 用于配置路径
+import yaml # 加载 config.yml / keymap.yml
+import ctypes
+
+# 配置路径（与 main.py 同目录）
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(_BASE_DIR, "config.yml")
+KEYMAP_PATH = os.path.join(_BASE_DIR, "keymap.yml")
+
+_keymap_cache = None
+_unit_spell_to_hotkey_cache = None
+_current_keymap_class = None
+
+
+def select_keymap_for_class(class_id):
+    """
+    根据 config.yml 中职业配置的 keymap 字段切换使用的 keymap 文件。
+    - class_id: 职业 id，如 5、11；若为空则回退到默认 keymap.yml。
+    调用后会清空 keymap 缓存和热键缓存，后续 load_keymap/get_hotkey 会使用新的 keymap。
+    """
+    global KEYMAP_PATH, _keymap_cache, _unit_spell_to_hotkey_cache, _current_keymap_class
+
+    if class_id == _current_keymap_class and _keymap_cache is not None:
+        return
+
+    keymap_path = os.path.join(_BASE_DIR, "keymap.yml")
+    if class_id is not None:
+        config = load_config()
+        class_dict = config.get(class_id) or config.get(str(class_id))
+        if isinstance(class_dict, dict):
+            km = class_dict.get("keymap")
+            if isinstance(km, str) and km:
+                keymap_path = os.path.join(_BASE_DIR, "keymap", km) if not os.path.isabs(km) else km
+
+    KEYMAP_PATH = keymap_path
+    _current_keymap_class = class_id
+    _keymap_cache = None
+    _unit_spell_to_hotkey_cache = None
+
+
+
+def load_keymap():
+    """加载当前选择的 keymap 文件（可由 select_keymap_for_class 动态切换）。"""
+    global _keymap_cache
+    if _keymap_cache is None:
+        with open(KEYMAP_PATH, "r", encoding="utf-8") as f:
+            _keymap_cache = yaml.safe_load(f)
+    return _keymap_cache
+
+def get_hotkey(unit, spell):
+    """
+    根据 unit 和 spell 返回热键。
+    若 unit 为空（None 或 ""），则按 unit=0 查找。
+    返回热键字符串，未找到则返回 None。
+    """
+    global _unit_spell_to_hotkey_cache
+    if _unit_spell_to_hotkey_cache is None:
+        keymap = load_keymap()
+        _unit_spell_to_hotkey_cache = {}
+        for id_val, entry in (keymap or {}).items():
+            if not isinstance(entry, dict):
+                continue
+            u = entry.get("unit")
+            # 兼容旧字段 spell/hotkey 以及中文字段 技能/热键
+            s = entry.get("spell") or entry.get("技能")
+            h = entry.get("hotkey") or entry.get("热键")
+            if s is not None and h is not None:
+                u = int(u) if u is not None else 0
+                _unit_spell_to_hotkey_cache[(u, s)] = h
+    u = 0 if unit in (None, "") else (int(unit) if isinstance(unit, str) else unit)
+    return _unit_spell_to_hotkey_cache.get((u, spell))
+
+def load_config():
+    """加载 config.yml"""
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def _role_not_zero(data):
+    """检查单位职责是否不等于 0，职责为 0 则返回 False（应跳过）。"""
+    role = data.get("职责")
+    if role is None:
+        return True
+    try:
+        return int(role) != 0
+    except (TypeError, ValueError):
+        return True
+
+
+def get_lowest_health_unit(state_dict):
+    """
+    在 group 中生命值最低的单位, 生命值 0 视为死亡不选, 100 视为满血不选。
+    仅考虑职责不等于 0 的单位。
+    返回 (lowest_unit, lowest_pct) 或 (None, None), lowest_unit 为 "1"~"30"。
+    """
+    group = state_dict.get("group") or {}
+    lowest_unit, lowest_pct = None, 100
+    for key, data in group.items():
+        if not isinstance(data, dict):
+            continue
+        if not _role_not_zero(data):
+            continue
+        pct = data.get("生命值")
+        if pct is None:
+            continue
+        try:
+            pct = int(pct)
+        except (TypeError, ValueError):
+            continue
+        if 0 < pct < 100 and pct < lowest_pct:
+            lowest_unit, lowest_pct = key, pct
+    slot = str(lowest_unit) if lowest_unit is not None else None
+    return (slot, lowest_pct) if lowest_unit is not None else (None, None)
+
+
+# 光环名到 Lua aura spellId 的映射（class.lua: 194384=救赎, 17/1253593=真言术：盾）
+_AURA_SPELL_IDS = {
+    "救赎": 194384,
+    "真言术：盾": 17,  # 17 与 1253593 都表示真言术：盾
+}
+
+
+def _has_aura(data, aura_name):
+    """检查单位是否有指定光环。兼容直接键名或 aura[spellId] 结构。"""
+    val = data.get(aura_name)
+    if val is not None:
+        try:
+            return int(val) != 0
+        except (TypeError, ValueError):
+            return True
+    spell_id = _AURA_SPELL_IDS.get(aura_name)
+    if spell_id is not None:
+        aura = data.get("aura")
+        if isinstance(aura, dict):
+            v = aura.get(spell_id) or aura.get(str(spell_id))
+            return v is not None and int(v) != 0
+    return False
+
+
+def get_lowest_health_unit_without_aura(state_dict, aura_name, health_threshold=100):
+    """
+    获取没有指定光环名称、且生命值最低的单位。生命值 0 视为死亡不选。
+    仅考虑职责不等于 0 的单位。
+    aura_name 为 group 中的键名（如 "救赎"、"真言术：盾"），或对应 aura[spellId]。
+    health_threshold: 只考虑生命值低于此阈值的单位（默认 100，即排除满血）。
+    返回 (lowest_unit, lowest_pct) 或 (None, None), lowest_unit 为 "1"~"30"。
+    """
+    group = state_dict.get("group") or {}
+    lowest_unit, lowest_pct = None, health_threshold
+    for key, data in group.items():
+        if not isinstance(data, dict):
+            continue
+        if not _role_not_zero(data):
+            continue
+        if _has_aura(data, aura_name):
+            continue
+        pct = data.get("生命值")
+        if pct is None:
+            continue
+        try:
+            pct = int(pct)
+        except (TypeError, ValueError):
+            continue
+        if 0 < pct < health_threshold and pct < lowest_pct:
+            lowest_unit, lowest_pct = key, pct
+    slot = str(lowest_unit) if lowest_unit is not None else None
+    return (slot, lowest_pct) if lowest_unit is not None else (None, None)
+
+
+def count_units_without_aura_below_health(state_dict, aura_name, health_threshold):
+    """
+    统计没有指定光环、且生命值低于给定阈值的单位数量。
+    仅考虑职责不等于 0 的单位。
+    - aura_name: group 中的键名（如 "救赎"、"真言术：盾"），或对应 aura[spellId]。
+    - health_threshold: 血量阈值（百分比整数），统计 0 < 生命值 < health_threshold 的单位。
+    返回一个整数 count。
+    """
+    group = state_dict.get("group") or {}
+    count = 0
+    try:
+        threshold = int(health_threshold)
+    except (TypeError, ValueError):
+        return 0
+
+    for key, data in group.items():
+        if not isinstance(data, dict):
+            continue
+        if not _role_not_zero(data):
+            continue
+
+        if _has_aura(data, aura_name):
+            continue
+
+        pct = data.get("生命值")
+        if pct is None:
+            continue
+        try:
+            pct = int(pct)
+        except (TypeError, ValueError):
+            continue
+
+        if 0 < pct < threshold:
+            count += 1
+
+    return count
+
+
+def get_unit_with_dispel_type(state_dict, dispel_type):
+    """
+    查找拥有指定驱散类型的第一个单位。
+    仅考虑职责不等于 0 的单位。
+    - dispel_type: 驱散类型整数 。
+    - group 中 驱散 字段为 type: int。
+    返回 (slot_key, unit_data) 或 (None, None)，slot_key 为 "1"～"30"。
+    """
+    group = state_dict.get("group") or {}
+    for key, data in group.items():
+        if not isinstance(data, dict):
+            continue
+        if not _role_not_zero(data):
+            continue
+        val = data.get("驱散")      
+        if val is not None:
+            try:
+                if int(val) == dispel_type:
+                    return key, data
+            except (TypeError, ValueError):
+                pass
+    return None, None
+
+
+# --- 后台按键发送（Windows PostMessage）---
+WM_KEYDOWN = 0x0100
+WM_KEYUP   = 0x0101
+
+# 修饰键与常用键的虚拟键码（与 keymap 中的名称一致）
+_VK = {
+    "SHIFT": 0x10,
+    "CONTROL": 0x11,
+    "CTRL": 0x11,
+    "MENU": 0x12,
+    "ALT": 0x12,
+    # 鼠标侧键（XButton1 / XButton2）
+    "XBUTTON1": 0x05,
+    "X1": 0x05,
+    "MOUSE4": 0x05,
+    "XBUTTON2": 0x06,
+    "X2": 0x06,
+    "MOUSE5": 0x06,
+    "F1": 0x70, "F2": 0x71, "F3": 0x72, "F4": 0x73, "F5": 0x74,
+    "F6": 0x75, "F7": 0x76, "F8": 0x77, "F9": 0x78, "F10": 0x79,
+    "F11": 0x7A, "F12": 0x7B,
+    "NUMPAD0": 0x60, "NUMPAD1": 0x61, "NUMPAD2": 0x62, "NUMPAD3": 0x63,
+    "NUMPAD4": 0x64, "NUMPAD5": 0x65, "NUMPAD6": 0x66, "NUMPAD7": 0x67,
+    "NUMPAD8": 0x68, "NUMPAD9": 0x69,
+    "NUMPADDECIMAL": 0x6E,
+    "NUMPADPLUS": 0x6B,
+    "NUMPADMINUS": 0x6D,
+    "NUMPADMULTIPLY": 0x6A,
+    "NUMPADDIVIDE": 0x6F,
+}
+
+# 单字符到 VK 的常用映射（与 keymap 中 CTRL-, 等一致）
+_CHAR_VK = {
+    ",": 0xBC, ".": 0xBE, "/": 0xBF, ";": 0xBA, "'": 0xDE,
+    "[": 0xDB, "]": 0xDD, "=": 0xBB, "-": 0xBD, "`": 0xC0,
+}
+
+
+def _parse_hotkey(hotkey_str):
+    """
+    解析热键字符串，如 "CTRL-ALT-NUMPAD1" -> (['CTRL','ALT'], 'NUMPAD1')。
+    单字符键如 "CTRL-," -> (['CTRL'], ',')。
+    """
+    if not hotkey_str or not isinstance(hotkey_str, str):
+        return [], None
+    parts = hotkey_str.strip().upper().split("-")
+    if not parts:
+        return [], None
+    # 最后一段是主键，前面都是修饰键
+    main_key = parts[-1]
+    mods = []
+    for p in parts[:-1]:
+        if p in ("CTRL", "CONTROL", "ALT", "MENU", "SHIFT"):
+            if p == "CONTROL":
+                p = "CTRL"
+            if p == "MENU":
+                p = "ALT"
+            if p not in mods:
+                mods.append(p)
+    # 主键保持原样以便匹配 NUMPAD1 或单字符
+    if len(parts[-1]) == 1:
+        main_key = hotkey_str.strip().split("-")[-1]  # 保留原始大小写/字符
+    else:
+        main_key = parts[-1]
+    return mods, main_key
+
+
+def _get_vk(key_name):
+    """根据键名返回虚拟键码，单字符用 VkKeyScanW 或 _CHAR_VK。"""
+    key_upper = key_name.upper() if isinstance(key_name, str) and len(key_name) > 1 else key_name
+    if key_upper in _VK:
+        return _VK[key_upper]
+    if len(key_name) == 1 and key_name in _CHAR_VK:
+        return _CHAR_VK[key_name]
+    if len(key_name) == 1:
+        # 使用 Windows API 获取字符的 VK
+        vk = ctypes.windll.user32.VkKeyScanW(ord(key_name))
+        if vk != -1:
+            return vk & 0xFF
+    return None
+
+
+def get_vk(key_str):
+    """
+    根据键名字符串返回 Windows 虚拟键码（用于检测按键状态等）。
+    支持单字符（如 "G"、"g"）或键名（如 "F1"、"NUMPAD1"）。无法解析时返回 None。
+    """
+    if not key_str or not isinstance(key_str, str):
+        return None
+    key_str = key_str.strip()
+    if not key_str:
+        return None
+    return _get_vk(key_str)
+
+
+def send_key_to_wow(keys_str, window_title="魔兽世界"):
+    """
+    向指定窗口后台发送按键（不要求窗口在前台）。
+    参数 keys_str: 与 keymap 中 hotkey 格式一致，如 "CTRL-NUMPAD1"、"ALT-F1"、"CTRL-,"。
+    参数 window_title: 目标窗口标题，默认 "魔兽世界"。
+    找到窗口则发送并返回 True，否则返回 False。
+    注意：部分游戏使用 DirectInput/原始输入，可能不响应 PostMessage，此时需另用驱动或前台模拟。
+    """
+    if not keys_str:
+        return False
+    mods, main_key = _parse_hotkey(keys_str)
+    vk_main = _get_vk(main_key)
+    if vk_main is None:
+        return False
+
+    hwnd = ctypes.windll.user32.FindWindowW(None, window_title)
+    if not hwnd:
+        return False
+
+    # 修饰键 VK 列表（按下顺序）
+    mod_vks = []
+    for m in mods:
+        vk = _get_vk(m)
+        if vk is not None and vk not in mod_vks:
+            mod_vks.append(vk)
+
+    def post(key_code, key_up=False):
+        lparam = 0xC0000001 if key_up else 0x00000001
+        ctypes.windll.user32.PostMessageW(hwnd, WM_KEYUP if key_up else WM_KEYDOWN, key_code, lparam)
+
+    # 顺序：修饰键按下 -> 主键按下 -> 主键抬起 -> 修饰键抬起
+    for vk in mod_vks:
+        post(vk, key_up=False)
+    post(vk_main, key_up=False)
+    post(vk_main, key_up=True)
+    for vk in reversed(mod_vks):
+        post(vk, key_up=True)
+
+    return True
