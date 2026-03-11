@@ -1,0 +1,680 @@
+1: 
+   unit: 1
+   spell: 苦修
+   hotkey: CTRL-NUMPAD1
+2: 
+   unit: 2
+   spell: 苦修
+   hotkey: CTRL-NUMPAD2
+3: 
+   unit: 3
+   spell: 苦修
+   hotkey: CTRL-NUMPAD3
+4: 
+   unit: 4
+   spell: 苦修
+   hotkey: CTRL-NUMPAD4
+5: 
+   unit: 5
+   spell: 苦修
+   hotkey: CTRL-NUMPAD5
+6: 
+   unit: 6
+   spell: 苦修
+   hotkey: CTRL-NUMPAD6
+7: 
+   unit: 7
+   spell: 苦修
+   hotkey: CTRL-NUMPAD7
+8: 
+   unit: 8
+   spell: 苦修
+   hotkey: CTRL-NUMPAD8
+9: 
+   unit: 9
+   spell: 苦修
+   hotkey: CTRL-NUMPAD9
+10: 
+   unit: 10
+   spell: 苦修
+   hotkey: CTRL-NUMPAD0
+11: 
+   unit: 11
+   spell: 苦修
+   hotkey: CTRL-NUMPADDECIMAL
+12: 
+   unit: 12
+   spell: 苦修
+   hotkey: CTRL-NUMPADPLUS
+13: 
+   unit: 13
+   spell: 苦修
+   hotkey: CTRL-NUMPADMINUS
+14: 
+   unit: 14
+   spell: 苦修
+   hotkey: CTRL-NUMPADMULTIPLY
+15: 
+   unit: 15
+   spell: 苦修
+   hotkey: CTRL-NUMPADDIVIDE
+16: 
+   unit: 16
+   spell: 苦修
+   hotkey: CTRL-F1
+17: 
+   unit: 17
+   spell: 苦修
+   hotkey: CTRL-F2
+18: 
+   unit: 18
+   spell: 苦修
+   hotkey: CTRL-F3
+19: 
+   unit: 19
+   spell: 苦修
+   hotkey: CTRL-F5
+20: 
+   unit: 20
+   spell: 苦修
+   hotkey: CTRL-F6
+21: 
+   unit: 21
+   spell: 苦修
+   hotkey: CTRL-F7
+22: 
+   unit: 22
+   spell: 苦修
+   hotkey: CTRL-F8
+23: 
+   unit: 23
+   spell: 苦修
+   hotkey: CTRL-F9
+24: 
+   unit: 24
+   spell: 苦修
+   hotkey: CTRL-F10
+25: 
+   unit: 25
+   spell: 苦修
+   hotkey: CTRL-F11
+26: 
+   unit: 26
+   spell: 苦修
+   hotkey: CTRL-F12
+27: 
+   unit: 27
+   spell: 苦修
+   hotkey: CTRL-,
+28: 
+   unit: 28
+   spell: 苦修
+   hotkey: CTRL-.
+29: 
+   unit: 29
+   spell: 苦修
+   hotkey: CTRL-/
+30: 
+   unit: 30
+   spell: 苦修
+   hotkey: CTRL-;
+31: 
+   unit: 1
+   spell: 快速治疗
+   hotkey: CTRL-'
+32: 
+   unit: 2
+   spell: 快速治疗
+   hotkey: CTRL-[
+33: 
+   unit: 3
+   spell: 快速治疗
+   hotkey: CTRL-]
+34: 
+   unit: 4
+   spell: 快速治疗
+   hotkey: CTRL-=
+35: 
+   unit: 5
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD1
+36: 
+   unit: 6
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD2
+37: 
+   unit: 7
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD3
+38: 
+   unit: 8
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD4
+39: 
+   unit: 9
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD5
+40: 
+   unit: 10
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD6
+41: 
+   unit: 11
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD7
+42: 
+   unit: 12
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD8
+43: 
+   unit: 13
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD9
+44: 
+   unit: 14
+   spell: 快速治疗
+   hotkey: ALT-NUMPAD0
+45: 
+   unit: 15
+   spell: 快速治疗
+   hotkey: ALT-NUMPADDECIMAL
+46: 
+   unit: 16
+   spell: 快速治疗
+   hotkey: ALT-NUMPADPLUS
+47: 
+   unit: 17
+   spell: 快速治疗
+   hotkey: ALT-NUMPADMINUS
+48: 
+   unit: 18
+   spell: 快速治疗
+   hotkey: ALT-NUMPADMULTIPLY
+49: 
+   unit: 19
+   spell: 快速治疗
+   hotkey: ALT-NUMPADDIVIDE
+50: 
+   unit: 20
+   spell: 快速治疗
+   hotkey: ALT-F1
+51: 
+   unit: 21
+   spell: 快速治疗
+   hotkey: ALT-F2
+52: 
+   unit: 22
+   spell: 快速治疗
+   hotkey: ALT-F3
+53: 
+   unit: 23
+   spell: 快速治疗
+   hotkey: ALT-F5
+54: 
+   unit: 24
+   spell: 快速治疗
+   hotkey: ALT-F6
+55: 
+   unit: 25
+   spell: 快速治疗
+   hotkey: ALT-F7
+56: 
+   unit: 26
+   spell: 快速治疗
+   hotkey: ALT-F8
+57: 
+   unit: 27
+   spell: 快速治疗
+   hotkey: ALT-F9
+58: 
+   unit: 28
+   spell: 快速治疗
+   hotkey: ALT-F10
+59: 
+   unit: 29
+   spell: 快速治疗
+   hotkey: ALT-F11
+60: 
+   unit: 30
+   spell: 快速治疗
+   hotkey: ALT-F12
+61: 
+   unit: 1
+   spell: 真言术：盾
+   hotkey: ALT-,
+62: 
+   unit: 2
+   spell: 真言术：盾
+   hotkey: ALT-.
+63: 
+   unit: 3
+   spell: 真言术：盾
+   hotkey: ALT-/
+64: 
+   unit: 4
+   spell: 真言术：盾
+   hotkey: ALT-;
+65: 
+   unit: 5
+   spell: 真言术：盾
+   hotkey: ALT-'
+66: 
+   unit: 6
+   spell: 真言术：盾
+   hotkey: ALT-[
+67: 
+   unit: 7
+   spell: 真言术：盾
+   hotkey: ALT-]
+68: 
+   unit: 8
+   spell: 真言术：盾
+   hotkey: ALT-=
+69: 
+   unit: 9
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD1
+70: 
+   unit: 10
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD2
+71: 
+   unit: 11
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD3
+72: 
+   unit: 12
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD4
+73: 
+   unit: 13
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD5
+74: 
+   unit: 14
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD6
+75: 
+   unit: 15
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD7
+76: 
+   unit: 16
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD8
+77: 
+   unit: 17
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD9
+78: 
+   unit: 18
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPAD0
+79: 
+   unit: 19
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPADDECIMAL
+80: 
+   unit: 20
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPADPLUS
+81: 
+   unit: 21
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPADMINUS
+82: 
+   unit: 22
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPADMULTIPLY
+83: 
+   unit: 23
+   spell: 真言术：盾
+   hotkey: SHIFT-NUMPADDIVIDE
+84: 
+   unit: 24
+   spell: 真言术：盾
+   hotkey: SHIFT-F1
+85: 
+   unit: 25
+   spell: 真言术：盾
+   hotkey: SHIFT-F2
+86: 
+   unit: 26
+   spell: 真言术：盾
+   hotkey: SHIFT-F3
+87: 
+   unit: 27
+   spell: 真言术：盾
+   hotkey: SHIFT-F5
+88: 
+   unit: 28
+   spell: 真言术：盾
+   hotkey: SHIFT-F6
+89: 
+   unit: 29
+   spell: 真言术：盾
+   hotkey: SHIFT-F7
+90: 
+   unit: 30
+   spell: 真言术：盾
+   hotkey: SHIFT-F8
+91: 
+   unit: 1
+   spell: 恳求
+   hotkey: SHIFT-F9
+92: 
+   unit: 2
+   spell: 恳求
+   hotkey: SHIFT-F10
+93: 
+   unit: 3
+   spell: 恳求
+   hotkey: SHIFT-F11
+94: 
+   unit: 4
+   spell: 恳求
+   hotkey: SHIFT-F12
+95: 
+   unit: 5
+   spell: 恳求
+   hotkey: SHIFT-,
+96: 
+   unit: 6
+   spell: 恳求
+   hotkey: SHIFT-.
+97: 
+   unit: 7
+   spell: 恳求
+   hotkey: SHIFT-/
+98: 
+   unit: 8
+   spell: 恳求
+   hotkey: SHIFT-;
+99: 
+   unit: 9
+   spell: 恳求
+   hotkey: SHIFT-'
+100: 
+   unit: 10
+   spell: 恳求
+   hotkey: SHIFT-[
+101: 
+   unit: 11
+   spell: 恳求
+   hotkey: SHIFT-]
+102: 
+   unit: 12
+   spell: 恳求
+   hotkey: SHIFT-=
+103: 
+   unit: 13
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD1
+104: 
+   unit: 14
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD2
+105: 
+   unit: 15
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD3
+106: 
+   unit: 16
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD4
+107: 
+   unit: 17
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD5
+108: 
+   unit: 18
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD6
+109: 
+   unit: 19
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD7
+110: 
+   unit: 20
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD8
+111: 
+   unit: 21
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD9
+112: 
+   unit: 22
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPAD0
+113: 
+   unit: 23
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPADDECIMAL
+114: 
+   unit: 24
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPADPLUS
+115: 
+   unit: 25
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPADMINUS
+116: 
+   unit: 26
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPADMULTIPLY
+117: 
+   unit: 27
+   spell: 恳求
+   hotkey: ALT-CTRL-NUMPADDIVIDE
+118: 
+   unit: 28
+   spell: 恳求
+   hotkey: ALT-CTRL-F1
+119: 
+   unit: 29
+   spell: 恳求
+   hotkey: ALT-CTRL-F2
+120: 
+   unit: 30
+   spell: 恳求
+   hotkey: ALT-CTRL-F3
+121: 
+   unit: 1
+   spell: 纯净术
+   hotkey: ALT-CTRL-F5
+122: 
+   unit: 2
+   spell: 纯净术
+   hotkey: ALT-CTRL-F6
+123: 
+   unit: 3
+   spell: 纯净术
+   hotkey: ALT-CTRL-F7
+124: 
+   unit: 4
+   spell: 纯净术
+   hotkey: ALT-CTRL-F8
+125: 
+   unit: 5
+   spell: 纯净术
+   hotkey: ALT-CTRL-F9
+126: 
+   unit: 6
+   spell: 纯净术
+   hotkey: ALT-CTRL-F10
+127: 
+   unit: 7
+   spell: 纯净术
+   hotkey: ALT-CTRL-F11
+128: 
+   unit: 8
+   spell: 纯净术
+   hotkey: ALT-CTRL-F12
+129: 
+   unit: 9
+   spell: 纯净术
+   hotkey: ALT-CTRL-,
+130: 
+   unit: 10
+   spell: 纯净术
+   hotkey: ALT-CTRL-.
+131: 
+   unit: 11
+   spell: 纯净术
+   hotkey: ALT-CTRL-/
+132: 
+   unit: 12
+   spell: 纯净术
+   hotkey: ALT-CTRL-;
+133: 
+   unit: 13
+   spell: 纯净术
+   hotkey: ALT-CTRL-'
+134: 
+   unit: 14
+   spell: 纯净术
+   hotkey: ALT-CTRL-[
+135: 
+   unit: 15
+   spell: 纯净术
+   hotkey: ALT-CTRL-]
+136: 
+   unit: 16
+   spell: 纯净术
+   hotkey: ALT-CTRL-=
+137: 
+   unit: 17
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD1
+138: 
+   unit: 18
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD2
+139: 
+   unit: 19
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD3
+140: 
+   unit: 20
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD4
+141: 
+   unit: 21
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD5
+142: 
+   unit: 22
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD6
+143: 
+   unit: 23
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD7
+144: 
+   unit: 24
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD8
+145: 
+   unit: 25
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD9
+146: 
+   unit: 26
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPAD0
+147: 
+   unit: 27
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPADDECIMAL
+148: 
+   unit: 28
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPADPLUS
+149: 
+   unit: 29
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPADMINUS
+150: 
+   unit: 30
+   spell: 纯净术
+   hotkey: ALT-SHIFT-NUMPADMULTIPLY
+151: 
+   unit: 0
+   spell: 心灵震爆
+   hotkey: ALT-SHIFT-NUMPADDIVIDE
+152: 
+   unit: 0
+   spell: 惩击
+   hotkey: ALT-SHIFT-F1
+153: 
+   unit: 0
+   spell: 暗言术：痛
+   hotkey: ALT-SHIFT-F2
+154: 
+   unit: 0
+   spell: 真言术：韧
+   hotkey: ALT-SHIFT-F3
+155: 
+   unit: 0
+   spell: 神圣新星
+   hotkey: ALT-SHIFT-F5
+156: 
+   unit: 0
+   spell: 苦修
+   hotkey: ALT-SHIFT-F6
+157: 
+   unit: 0
+   spell: 真言术：耀
+   hotkey: ALT-SHIFT-F7
+158: 
+   unit: 0
+   spell: 福音
+   hotkey: ALT-SHIFT-F8
+159: 
+   unit: 0
+   spell: 终极苦修
+   hotkey: ALT-SHIFT-F9
+160: 
+   unit: 0
+   spell: 绝望祷言
+   hotkey: ALT-SHIFT-F10
+161: 
+   unit: 0
+   spell: 暗言术：灭
+   hotkey: ALT-SHIFT-F11
+162: 
+   unit: 0
+   spell: 吸血鬼之触
+   hotkey: ALT-SHIFT-F12
+163: 
+   unit: 0
+   spell: 暗影形态
+   hotkey: ALT-SHIFT-,
+164: 
+   unit: 0
+   spell: 暗言术：癫
+   hotkey: ALT-SHIFT-.
+165: 
+   unit: 0
+   spell: 精神鞭笞
+   hotkey: ALT-SHIFT-/
+166: 
+   unit: 0
+   spell: 虚空形态
+   hotkey: ALT-SHIFT-;
+167: 
+   unit: 0
+   spell: 虚空洪流
+   hotkey: ALT-SHIFT-'
+168: 
+   unit: 0
+   spell: 触须猛击
+   hotkey: ALT-SHIFT-[
+169: 
+   unit: 0
+   spell: 虚空冲击
+   hotkey: ALT-SHIFT-]
+170: 
+   unit: 0
+   spell: 虚空齐射
+   hotkey: ALT-SHIFT-=
