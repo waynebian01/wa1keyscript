@@ -1,0 +1,429 @@
+state:
+  锚点:    
+    step: 1
+    type: "bool"
+  职业:   
+    step: 2
+    type: "int"
+  专精:
+    step: 3
+    type: "int"
+  有效性:   
+    step: 4
+    type: "bool"
+  战斗:
+    step: 5
+    type: "bool"
+  移动:
+    step: 6
+    type: "bool"
+  施法:
+    step: 7
+    type: "int"
+  引导:
+    step: 8
+    type: "int"
+  生命值:
+    step: 9
+    type: "int"
+  能量值:
+    step: 10
+    type: "int"
+2:
+  keymap: "paladin.yml"
+  1:
+    神圣能量:
+      step: 11
+      type: "int"
+    目标有效:
+      step: 12
+      type: "bool"
+    队伍类型:
+      step: 13
+      type: "int"
+    队伍人数:
+      step: 14
+      type: "int"
+    神圣意志:
+      step: 15
+      type: "int"
+    圣光灌注:
+      step: 16
+      type: "int"
+    spells:
+      神圣震击:
+        step: 21
+        type: "int"
+      清洁术:
+        step: 22
+        type: "int"
+      盲目之光:
+        step: 23
+        type: "int"
+      审判:
+        step: 24
+        type: "int"
+      圣洁鸣钟:
+        step: 25
+        type: "int"
+      神圣棱镜:
+        step: 26
+        type: "int"
+      光环掌握:
+        step: 27
+        type: "int"
+      牺牲祝福:
+        step: 28
+        type: "int"
+      自由祝福:
+        step: 29
+        type: "int"
+      震击充能:
+        step: 30
+        type: "int"
+    group:
+      start: 40
+      num: 6
+      生命值:
+        step: 1
+        type: "int"
+      职责:
+        step: 2
+        type: "int"
+      驱散:
+        step: 3
+        type: "int"
+      永恒之火:
+        step: 4
+        type: "int"
+      救世道标:
+        step: 5
+        type: "int"
+      圣光道标:
+        step: 6
+        type: "int"
+
+5:
+  keymap: "priest.yml"
+  1:
+    一键辅助:
+      step: 11
+      type: "int"
+    目标有效:
+      step: 12
+      type: "bool"
+    spells:
+      真言术：盾:
+        step: 15
+        type: "int"
+      苦修:
+        step: 16
+        type: "int"
+      真言术：耀:
+        step: 17
+        type: "int"
+      纯净术:
+        step: 18
+        type: "int"
+      绝望祷言:
+        step: 19
+        type: "int"
+      心灵震爆:
+        step: 20
+        type: "int"
+      福音:
+        step: 21
+        type: "int"
+      暗言术：灭:
+        step: 22
+        type: "int"
+    虚空之盾:
+      step: 23
+      type: "bool"
+    圣光涌动:
+      step: 24
+      type: "bool"
+    队伍人数:
+      step: 14
+      type: "int"
+    group:
+      start: 40
+      num: 5
+      生命值:
+        step: 1
+        type: "int"
+      职责:
+        step: 2
+        type: "int"
+      驱散:
+        step: 3
+        type: "int"
+      救赎:
+        type: "int"
+        step: 4
+      真言术：盾:
+        type: "int"
+        step: 5
+  3:
+    一键辅助:
+      step: 11
+      type: "int"
+    目标有效:
+      step: 12
+      type: "bool"
+    spells:
+      心灵震爆:
+        step: 13
+        type: "int"
+      暗言术：灭:
+        step: 14
+        type: "int"
+      虚空洪流:
+        step: 15
+        type: "int"
+      虚空形态:
+        step: 16
+        type: "int"
+      触须猛击:
+        step: 17
+        type: "int"
+      绝望祷言:
+        step: 18
+        type: "int"
+
+6:
+  keymap: "deathknight.yml"
+  1:
+    符文:
+      step: 11
+      type: "int"
+    一键辅助:
+      step: 12
+      type: "int"
+    目标有效:
+      step: 13
+      type: "bool"
+    目标生命值:
+      step: 14
+      type: "int"
+    敌人人数:
+      step: 15
+      type: "int"
+    spells:
+      亡者复生:
+        step: 16
+        type: "int"
+      吸血鬼之血:
+        step: 17
+        type: "int"
+      冰封之韧:
+        step: 18
+        type: "int"
+      巫妖之躯:
+        step: 19
+        type: "int"
+  3:
+    符文:
+      step: 11
+      type: "int"
+    一键辅助:
+      step: 12
+      type: "int"
+    目标有效:
+      step: 13
+      type: "bool"
+    目标生命值:
+      step: 14
+      type: "int"
+    敌人人数:
+      step: 15
+      type: "int"
+    脓疮毒镰:
+      step: 22
+      type: "int"
+    次级食尸鬼:
+      step: 23
+      type: "int"
+    末日突降:
+      step: 24
+      type: "int"
+    黑暗援助:
+      step: 25
+      type: "int"
+    禁断知识:
+      step: 26
+      type: "int"
+    spells:
+      亡者复生:
+        step: 16
+        type: "int"
+      亡者大军:
+        step: 17
+        type: "int"
+      腐化:
+        step: 18
+        type: "int"
+      黑暗突变:
+        step: 19
+        type: "int"
+      灵魂收割:
+        step: 20
+        type: "int"
+      腐化2:
+        step: 21
+        type: "int"
+
+11:
+  keymap: "druid.yml"
+  3:
+    一键辅助:
+      step: 11
+      type: "int"
+    目标有效:     
+      step: 12
+      type: "bool"
+    目标生命值:
+      step: 13
+      type: "int"
+    敌人人数:
+      step: 14
+      type: "int"
+    姿态:
+      step: 15
+      type: "int"
+    铁鬃:
+      step: 21
+      type: "int"
+    回复狂暴:
+      step: 22
+      type: "int"
+    塞纳留斯的梦境:
+      step: 23
+      type: "int"
+    铁鬃之赐:
+      step: 24
+      type: "int"
+    重殴之赐:
+      step: 25
+      type: "int"
+    狂暴回复之赐:
+      step: 26
+      type: "int"
+    节能施法:
+      step: 18
+      type: "int"
+    spells:
+      树皮术:
+        step: 31
+        type: "int"
+      生存本能:
+        step: 32
+        type: "int"
+      狂暴回复:
+        step: 33
+        type: "int"
+      台风:
+        step: 34
+        type: "int"
+      夺魂咆哮:
+        step: 35
+        type: "int"
+      化身:
+        step: 36
+        type: "int"
+      自然迅捷:
+        step: 37
+        type: "int"
+      激活:
+        step: 38
+        type: "int"
+      野性之心:
+        step: 39
+        type: "int"
+      狂暴充能:
+        step: 40
+        type: "int"
+  4:
+    一键辅助:
+      step: 11
+      type: "int"
+    目标有效:     
+      step: 12
+      type: "bool"
+    队伍类型:
+      step: 13
+      type: "int"
+    姿态:
+      step: 14
+      type: "int"
+    目标距离:
+      step: 15
+      type: "int"
+    队伍人数:
+      step: 16
+      type: "int"
+    连击点:
+      step: 17
+      type: "int"
+    节能施法:
+      step: 18
+      type: "int"
+    自然迅捷:
+      step: 19
+      type: "bool"
+    丛林之魂: 
+      step: 20
+      type: "int"
+    spells:
+      树皮术:
+        step: 31
+        type: "int"
+      野性成长:
+        step: 32
+        type: "int"
+      万灵之召:
+        step: 33
+        type: "int"
+      迅捷治愈:
+        step: 34
+        type: "int"
+      自然之愈:
+        step: 35
+        type: "int"
+      铁木树皮:
+        step: 36
+        type: "int"
+      自然迅捷:
+        step: 37
+        type: "int"
+      激活:
+        step: 38
+        type: "int"
+      野性之心:
+        step: 39
+        type: "int"
+    group:
+      start: 40
+      num: 7
+      生命值:
+        step: 1
+        type: "int"
+      职责:
+        step: 2
+        type: "int"
+      驱散:
+        step: 3
+        type: "int"
+      生命绽放:
+        type: "int"
+        step: 4
+      迅捷治愈:
+        type: "int"
+        step: 5
+      愈合:
+        type: "int"
+        step: 6
+      回春术:
+        type: "int"
+        step: 7
+
