@@ -29,7 +29,7 @@ _unit_info = {}  # 单位信息，供 GUI 显示
 # 戒律专精技能
 DISCIPLINE_SPELLS = [
     "真言术：盾", "苦修", "真言术：耀", "纯净术",
-    "绝望祷言", "心灵震爆", "福音", "暗言术：灭",
+    "绝望祷言", "心灵震爆", "福音", "暗言术：灭", "奥术洪流",
 ]
 # 暗影专精技能
 SHADOW_SPELLS = [
@@ -212,82 +212,72 @@ def _run_priest_loop():
             no_shield_lowest_unit, no_shield_lowest_pct = get_lowest_health_unit_without_aura(state_dict, "真言术：盾", 100)
             no_shield_unit, no_shield_pct = get_lowest_health_unit_without_aura(state_dict, "真言术：盾", 101)
             no_atonement_count_90 = count_units_without_aura_below_health(state_dict, "救赎", 99)
-            with _state_lock:
-                _unit_info = {
-                    "dispel_unit": dispel_unit,
-                    "lowest_unit": lowest_unit,
-                    "lowest_unit_pct": lowest_unit_pct,
-                    "no_atonement_unit": no_atonement_unit,
-                    "no_atonement_pct": no_atonement_pct,
-                    "no_shield_lowest_unit": no_shield_lowest_unit,
-                    "no_shield_lowest_pct": no_shield_lowest_pct,
-                    "no_shield_unit": no_shield_unit,
-                    "no_shield_pct": no_shield_pct,
-                    "no_atonement_count_90": no_atonement_count_90,
-                }
-
+           
             if channeling > 0:
-                _current_step = "0. 在引导,不执行任何操作"
+                _current_step = "引导,不执行任何操作"
                 action_hotkey = None
             elif spells.get("绝望祷言") == 0 and health_value < 50:
-                _current_step = "2. 施放 绝望祷言"
+                _current_step = " 施放 绝望祷言"
                 action_hotkey = get_hotkey(0, "绝望祷言")
             elif spells.get("纯净术") == 0 and dispel_unit is not None:
-                _current_step = f"3. 施放 纯净术 on {dispel_unit}"
+                _current_step = f" 施放 纯净术 on {dispel_unit}"
                 action_hotkey = get_hotkey(int(dispel_unit), "纯净术")
+            elif spells.get("奥术洪流") == 0 and energy_value <= 90:
+                _current_step = " 施放 奥术洪流"
+                action_hotkey = get_hotkey(0, "奥术洪流")
             elif spells.get("福音") == 0 and no_atonement_count_90 >= 3:
-                _current_step = "5. 施放 福音"
+                _current_step = " 施放 福音"
                 action_hotkey = get_hotkey(0, "福音")
             elif spells.get("真言术：耀") == 0 and casting == 0 and no_atonement_count_90 >= 3:
-                _current_step = "4. 施放 真言术：耀"
+                _current_step = " 施放 真言术：耀"
                 action_hotkey = get_hotkey(0, "真言术：耀")
             elif state_dict.get("圣光涌动") and no_atonement_unit is not None and no_atonement_pct is not None and no_atonement_pct < 90:
-                _current_step = f"6. 施放 快速治疗 on {no_atonement_unit}, 无救赎生命低于90%的单位"
+                _current_step = f"施放 快速治疗 on {no_atonement_unit}, 无救赎生命低于90%的单位"
                 action_hotkey = get_hotkey(int(no_atonement_unit), "快速治疗")
             elif state_dict.get("圣光涌动") and lowest_unit is not None and lowest_unit_pct is not None and lowest_unit_pct < 90:
-                _current_step = f"7. 施放 快速治疗 on {lowest_unit}, 生命最低的单位"
+                _current_step = f"施放 快速治疗 on {lowest_unit}, 生命最低的单位"
                 action_hotkey = get_hotkey(int(lowest_unit), "快速治疗")
             elif spells.get("真言术：盾") == 0 and no_atonement_unit is not None:
-                _current_step = f"8. 施放 真言术：盾 on {no_atonement_unit}, 无救赎单位"
+                _current_step = f"施放 真言术：盾 on {no_atonement_unit}, 无救赎单位"
                 action_hotkey = get_hotkey(int(no_atonement_unit), "真言术：盾")
             elif spells.get("真言术：盾") == 0 and no_shield_lowest_unit is not None:
-                _current_step = f"9. 施放 真言术：盾 on {no_shield_lowest_unit}, 无盾生命最低的单位"
+                _current_step = f"施放 真言术：盾 on {no_shield_lowest_unit}, 无盾生命最低的单位"
                 action_hotkey = get_hotkey(int(no_shield_lowest_unit), "真言术：盾")
             elif spells.get("真言术：盾") == 0 and no_shield_unit is not None:
-                _current_step = f"10. 施放 真言术：盾 on {no_shield_unit}, 无盾单位"
+                _current_step = f"施放 真言术：盾 on {no_shield_unit}, 无盾单位"
                 action_hotkey = get_hotkey(int(no_shield_unit), "真言术：盾")
             elif spells.get("福音") == 0 and no_atonement_count_90 >= 1:
-                _current_step = "5. 施放 福音"
+                _current_step = "施放 福音"
                 action_hotkey = get_hotkey(0, "福音")
             elif spells.get("真言术：耀") == 0 and casting == 0 and no_atonement_count_90 >= 1:
-                _current_step = "4. 施放 真言术：耀"
+                _current_step = "施放 真言术：耀"
                 action_hotkey = get_hotkey(0, "真言术：耀")
             elif spells.get("苦修") == 0 and not state_dict.get("虚空之盾") and lowest_unit is not None and lowest_unit_pct is not None and lowest_unit_pct < 70:
-                _current_step = f"13. 施放 苦修 on {lowest_unit}, 生命最低的单位"
+                _current_step = f"施放 苦修 on {lowest_unit}, 生命最低的单位"
                 action_hotkey = get_hotkey(int(lowest_unit), "苦修")
             elif target_valid and combat:
                 if assistant_value == 4:
-                    _current_step = "14. 施放 暗言术：痛"
+                    _current_step = "施放 暗言术：痛"
                     action_hotkey = get_hotkey(0, "暗言术：痛")
                 elif spells.get("暗言术：灭") == 0:
-                    _current_step = "15. 施放 暗言术：灭"
+                    _current_step = "施放 暗言术：灭"
                     action_hotkey = get_hotkey(0, "暗言术：灭")
                 elif not moving and spells.get("心灵震爆") == 0:
-                    _current_step = "16. 施放 心灵震爆"
+                    _current_step = "施放 心灵震爆"
                     action_hotkey = get_hotkey(0, "心灵震爆")
                 elif spells.get("苦修") == 0 and not state_dict.get("虚空之盾"):
-                    _current_step = "17. 施放 苦修"
+                    _current_step = "施放 苦修"
                     action_hotkey = get_hotkey(0, "苦修")
                 elif not moving:
-                    _current_step = "18. 施放 惩击"
+                    _current_step = "施放 惩击"
                     action_hotkey = get_hotkey(0, "惩击")
                 else:
                     _current_step = "战斗中-无匹配技能"
             elif assistant_value == 5:
-                _current_step = "19. 施放 真言术：韧"
+                _current_step = "施放 真言术：韧"
                 action_hotkey = get_hotkey(0, "真言术：韧")
             else:
-                _current_step = "20. 无匹配技能"
+                _current_step = "无匹配技能"
 
         elif spec_name == "暗影":
             with _state_lock:
@@ -323,6 +313,7 @@ def _run_priest_loop():
                     action_hotkey = get_hotkey(0, tup[1])
                 else:
                     _current_step = "战斗中-无匹配技能"
+        
         elif spec_name == "守护":
             with _state_lock:
                 _unit_info = {}
@@ -365,6 +356,7 @@ def _run_priest_loop():
             else:
                 _current_step = "非战斗状态,不执行任何操作"
                 action_hotkey = None
+        
         elif spec_name == "奶德":
             dispel_unit_magic, _ = get_unit_with_dispel_type(state_dict, 1)
             dispel_unit_curse, _ = get_unit_with_dispel_type(state_dict, 2)
@@ -433,7 +425,7 @@ def _run_priest_loop():
             elif casting == 0 and 4 < state_dict.get("节能施法") < 15 and no_regrowth_lowest_unit is not None and no_regrowth_lowest_pct is not None and no_regrowth_lowest_pct < 80:
                 _current_step = f"施放 愈合 on {no_regrowth_lowest_unit}"
                 action_hotkey = get_hotkey(int(no_regrowth_lowest_unit), "愈合")
-            elif state_dict.get("自然迅捷") and no_regrowth_lowest_unit is not None and no_regrowth_lowest_pct is not None and no_regrowth_lowest_pct < 70:
+            elif  spells.get("自然迅捷") == 255 and no_regrowth_lowest_unit is not None and no_regrowth_lowest_pct is not None and no_regrowth_lowest_pct < 70:
                 _current_step = f"施放 自然迅捷 on {no_regrowth_lowest_unit}"
                 action_hotkey = get_hotkey(int(no_regrowth_lowest_unit), "愈合")
             elif spells.get("自然迅捷") == 0 and no_regrowth_lowest_unit is not None and no_regrowth_lowest_pct is not None and no_regrowth_lowest_pct < 70:
@@ -507,7 +499,7 @@ def _run_priest_loop():
             elif spells.get("清洁术") == 0 and dispel_unit_poison is not None:
                 _current_step = f"施放 清洁术 on {dispel_unit_poison}"
                 action_hotkey = get_hotkey(int(dispel_unit_poison), "清洁术")
-            elif lowest_unit is not None and lowest_unit_pct is not None:
+            elif lowest_unit is not None and lowest_unit_pct is not None and lowest_unit_pct <= 95:
                 if (holy_power == 5 or state_dict.get("神圣意志") > 0) and count_units_below_health_90 > 5:
                     _current_step = f"施放 黎明之光"
                     action_hotkey = get_hotkey(0, "黎明之光")
@@ -536,9 +528,15 @@ def _run_priest_loop():
                     _current_step = f"施放 圣光闪现 on {lowest_unit}"
                     action_hotkey = get_hotkey(int(lowest_unit), "圣光闪现")
             elif combat and target_valid:
-                if spells.get("审判") <= 1:
+                if holy_power == 5 or state_dict.get("神圣意志") > 0:
+                    _current_step = f"施放 正义盾击"
+                    action_hotkey = get_hotkey(0, "正义盾击")
+                elif spells.get("审判") <= 1:
                     _current_step = "施放 审判"
                     action_hotkey = get_hotkey(0, "审判")
+                elif spells.get("神圣震击") == 0:
+                    _current_step = "施放 神圣震击"
+                    action_hotkey = get_hotkey(0, "神圣震击")
             else:
                 _current_step = "无匹配技能"
 

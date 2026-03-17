@@ -1,5 +1,5 @@
 1:
-  unit: 0
+  unit: 1
   技能: 神圣震击
   热键: CTRL-NUMPAD1
 2:
@@ -654,3 +654,7 @@
   unit: 0
   技能: 神圣棱镜
   热键: ALT-SHIFT-.
+165:
+  unit: 0
+  技能: 神圣震击
+  热键: ALT-SHIFT-/

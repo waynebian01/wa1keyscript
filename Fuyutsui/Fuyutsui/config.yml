@@ -1,14 +1,14 @@
 state:
-  锚点:    
+  锚点:
     step: 1
     type: "bool"
-  职业:   
+  职业:
     step: 2
     type: "int"
   专精:
     step: 3
     type: "int"
-  有效性:   
+  有效性:
     step: 4
     type: "bool"
   战斗:
@@ -137,12 +137,16 @@ state:
       暗言术：灭:
         step: 22
         type: "int"
+      奥术洪流:
+        step: 25
+        type: "int"
     虚空之盾:
       step: 23
       type: "bool"
     圣光涌动:
       step: 24
       type: "bool"
+    
     队伍人数:
       step: 14
       type: "int"

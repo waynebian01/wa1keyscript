@@ -51,7 +51,7 @@ local function getPlayerInfo()
     CreateClassMacro = fu.CreateClassMacro
     spellActivationOverlayShow = fu.spellActivationOverlayShow
     spellActivationOverlayHide = fu.spellActivationOverlayHide
-    if CreateClassMacro then CreateClassMacro() end
+
     if updateSpecInfo then updateSpecInfo(specIndex) end
     state.powerType = fu.powerType or nil
     creat(fixed_blocks.anchor, 0)
@@ -166,7 +166,9 @@ local function updateSpellCooldown()
                 local cooldown = C_Spell.GetSpellCooldown(v.spellId)
                 if durationObj and cooldown then
                     local result = durationObj:EvaluateRemainingDuration(curve255)
-                    local _, _, b = result:GetRGB()
+                    local value = C_CurveUtil.EvaluateColorFromBoolean(cooldown.isEnabled, result,
+                        CreateColor(0, v.index, 1))
+                    local _, _, b = value:GetRGB()
                     ---@diagnostic disable-next-line: undefined-field
                     if cooldown.isOnGCD then b = 0 end
                     creat(v.index, b)
@@ -179,6 +181,7 @@ local function updateSpellCooldown()
         end
     end
 end
+
 -- 更新法术充能冷却信息
 local function updateSpellChargeCooldown()
     if blocks and blocks.spell_charge then
@@ -450,11 +453,23 @@ local function clearGroupBlocks()
 end
 
 local function updateGroupCount()
-    if not blocks.members_count then return end
-    local count = GetNumGroupMembers()
-    creat(blocks.members_count, count / 255)
+    if blocks and blocks.members_count then
+        local count = GetNumGroupMembers()
+        creat(blocks.members_count, count / 255)
+    end
 end
 
+local function updateGroupType()
+    if blocks and blocks.group_type then
+        local index = 0
+        if UnitInRaid("player") then
+            index = UnitInRaid("player")
+        elseif UnitInParty("player") then
+            index = 46
+        end
+        creat(blocks.group_type, index / 255)
+    end
+end
 local function updateGroup()
     table.wipe(group)
     clearGroupBlocks()
@@ -511,6 +526,7 @@ function frame:PLAYER_ENTERING_WORLD()
     fu.readKeybindings() -- 读取按键绑定
     updateShapeshiftForm()
     updateRune()
+    if CreateClassMacro then CreateClassMacro() end
 end
 
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
@@ -694,17 +710,18 @@ end
 frame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW")
 frame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE")
 function frame:SPELL_ACTIVATION_OVERLAY_GLOW_SHOW(spellId)
-    updateSpellOverlay(spellId)
+    if updateSpellOverlay then updateSpellOverlay(spellId) end
 end
 
 function frame:SPELL_ACTIVATION_OVERLAY_GLOW_HIDE(spellId)
-    updateSpellOverlay(spellId)
+    if updateSpellOverlay then updateSpellOverlay(spellId) end
 end
 
 frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 function frame:GROUP_ROSTER_UPDATE()
     castTargetName, castTargetUnit = nil, nil
     updateGroupCount()
+    updateGroupType()
     updateGroup()
 end
 
@@ -772,12 +789,12 @@ end
 
 frame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_SHOW")
 function frame:SPELL_ACTIVATION_OVERLAY_SHOW(spellId)
-    spellActivationOverlayShow(spellId)
+    if spellActivationOverlayShow then spellActivationOverlayShow(spellId) end
 end
 
 frame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_HIDE")
 function frame:SPELL_ACTIVATION_OVERLAY_HIDE(spellId)
-    spellActivationOverlayHide(spellId)
+    if spellActivationOverlayHide then spellActivationOverlayHide(spellId) end
 end
 
 frame:RegisterEvent("UNIT_AURA")

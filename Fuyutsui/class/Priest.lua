@@ -25,7 +25,7 @@ fu.HarmfulSpellId = 585
 fu.HelpfulSpellId = 2061
 
 function fu.CreateClassMacro()
-    local dynamicSpells = { "苦修", "快速治疗", "真言术：盾", "恳求", "纯净术" }
+    local dynamicSpells = { "苦修", "快速治疗", "真言术：盾", "愈合祷言", "纯净术", "圣言术：静" }
     local staticSpells = {
         [1] = "心灵震爆",
         [2] = "惩击",
@@ -47,6 +47,11 @@ function fu.CreateClassMacro()
         [18] = "触须猛击",
         [19] = "虚空冲击",
         [20] = "虚空齐射",
+        [21] = "圣言术：罚",
+        [22] = "神圣之火",
+        [23] = "治疗祷言",
+        [24] = "神圣化身",
+        [25] = "奥术洪流",
     }
     fu.CreateMacro(dynamicSpells, staticSpells)
 end
@@ -89,6 +94,7 @@ function fu.updateSpecInfo(specIndex)
                 { index = 20, spellId = 8092, name = "心灵震爆" },
                 { index = 21, spellId = 472433, name = "福音" },
                 { index = 22, spellId = 32379, name = "暗言术：灭" },
+                { index = 25, spellId = 232633, name = "奥术洪流" },
             },
             aura = {
                 ["虚空之盾"] = voidShield,

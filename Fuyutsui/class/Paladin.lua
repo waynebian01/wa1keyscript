@@ -23,7 +23,7 @@ fu.HelpfulSpellId = 19750
 fu.HarmfulSpellId = 275773
 fu.HarmfulRemoteSpellId = 275773
 fu.HarmfulMeleeSpellId = 853
-
+-- /cast [spec:1] 专精1技能; [spec:2] 专精2技能
 -- 创建圣骑士宏
 function fu.CreateClassMacro()
     local dynamicSpells = { "神圣震击", "圣光闪现", "圣光术", "荣耀圣令", "清洁术" }
@@ -43,6 +43,7 @@ function fu.CreateClassMacro()
         [12] = "黎明之光",
         [13] = "自由祝福",
         [14] = "神圣棱镜",
+        [15] = "神圣震击",
     }
     fu.CreateMacro(dynamicSpells, staticSpells, specialSpells)
 end
@@ -82,7 +83,7 @@ function fu.updateSpecInfo(specIndex)
             holyPower = 11,
             target_valid = 12,
             group_type = 13,
-            group_count = 14,
+            members_count = 14,
             aura = {
                 ["神圣意志"] = auras.divinePurpose.index,
                 ["圣光灌注"] = auras.infusionOfLight.index,

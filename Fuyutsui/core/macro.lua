@@ -31,7 +31,7 @@ local format = string.format
 
 local function createMacro(name, key, macro)
     if InCombatLockdown() then
-        print("|cFFFF0000错误：战斗中不能创建按钮|r")
+       -- print("|cFFFF0000错误：战斗中不能创建按钮|r")
         return
     end
     local btn = macroList[name]
@@ -43,6 +43,7 @@ local function createMacro(name, key, macro)
         SetOverrideBindingClick(UIParent, false, key, name, "LeftButton")
     end
     btn:SetAttribute("macrotext", macro)
+   -- print(name, key, macro)
 end
 
 function fu.CreateMacro(dynamicData, staticData, specialData)
@@ -61,7 +62,6 @@ function fu.CreateMacro(dynamicData, staticData, specialData)
 
             if spell then
                 local raidIdx = ((i - 1) % 30) + 1
-
                 if raidIdx == 1 then
                     macroBody = format("/cast [group:raid,@raid1]%s;[@player]%s", spell, spell)
                 elseif raidIdx <= 5 then

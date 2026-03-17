@@ -2,6 +2,7 @@ local _, fu = ...
 if fu.classId ~= 11 then return end
 
 local creat = fu.updateOrCreatTextureByIndex
+local naturalSwiftness = 19
 local auras = {
     clearcasting = {
         name = "节能施法",
@@ -10,13 +11,13 @@ local auras = {
         duration = 15,
         expirationTime = nil,
     },
-    naturalSwiftness = {
+    --[[naturalSwiftness = {
         name = "自然迅捷",
         index = 19,
         remaining = 0,
         duration = nil, -- 持续时间, nil代表无限时间
         expirationTime = nil,
-    },
+    },]]
     forestSoul = {
         name = "丛林之魂",
         index = 20,
@@ -114,9 +115,9 @@ end
 function fu.updateSpellSuccess(spellID)
     local currentTime = GetTime()
     if spellID == 132158 then -- 获得 自然迅捷
-        creat(auras.naturalSwiftness.index, 1 / 255)
+        creat(naturalSwiftness, 1 / 255)
         C_Timer.After(30, function()
-            creat(auras.naturalSwiftness.index, 0)
+            creat(naturalSwiftness, 0)
         end)
     elseif spellID == 18562 then -- 获得 丛林之魂
         auras.forestSoul.expirationTime = currentTime + auras.forestSoul.duration
@@ -128,11 +129,11 @@ function fu.updateSpellSuccess(spellID)
         auras.cenariusDream.applications = auras.cenariusDream.applications - 1
         local isSpellOverlayed = C_SpellActivationOverlay.IsSpellOverlayed(spellID)
         if not isSpellOverlayed then auras.clearcasting.expirationTime = nil end
-        creat(auras.naturalSwiftness.index, 0)
+        creat(naturalSwiftness, 0)
     elseif spellID == 774 then                     -- 消耗 丛林之魂
         auras.forestSoul.expirationTime = nil
     elseif spellID == 20484 or spellID == 339 then -- 消耗 自然迅捷
-        creat(auras.naturalSwiftness.index, 0)
+        creat(naturalSwiftness, 0)
     elseif spellID == 192081 then                  -- 铁鬃
         auras.ironfur.expirationTime = currentTime + auras.ironfur.duration
         auras.giftOfIronfur.applications = auras.giftOfIronfur.applications - 1
@@ -218,7 +219,7 @@ function fu.updateSpecInfo(specIndex)
             comboPoints = 17,
             aura = {
                 ["节能施法"] = auras.clearcasting.index,
-                ["自然迅捷"] = auras.naturalSwiftness.index,
+                ["自然迅捷"] = naturalSwiftness,
                 ["丛林之魂"] = auras.forestSoul.index,
             },
             spell_cd = {
