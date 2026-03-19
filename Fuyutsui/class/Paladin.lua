@@ -17,45 +17,78 @@ local auras = {
         duration = 15,
         expirationTime = nil,
     },
+    handOfDivinity = {
+        name = "神性之手",
+        index = 17,
+        remaining = 0,
+        duration = 19.5,
+        applications = 0,
+        expirationTime = nil,
+    },
 }
-
+local dynamicSpells = { "神圣震击", "圣光闪现", "圣光术", "荣耀圣令", "清洁术" }
+local specialSpells = {}
+local staticSpells = {
+    [1] = "圣疗术",
+    [2] = "牺牲祝福",
+    [3] = "代祷",
+    [4] = "圣盾术",
+    [5] = "盲目之光",
+    [6] = "保护祝福",
+    [7] = "审判",
+    [8] = "制裁之锤",
+    [9] = "光环掌握",
+    [10] = "圣洁鸣钟",
+    [11] = "正义盾击",
+    [12] = "黎明之光",
+    [13] = "自由祝福",
+    [14] = "神圣棱镜",
+    [15] = "神圣震击",
+}
 fu.HelpfulSpellId = 19750
 fu.HarmfulSpellId = 275773
 fu.HarmfulRemoteSpellId = 275773
 fu.HarmfulMeleeSpellId = 853
--- /cast [spec:1] 专精1技能; [spec:2] 专精2技能
+
 -- 创建圣骑士宏
 function fu.CreateClassMacro()
-    local dynamicSpells = { "神圣震击", "圣光闪现", "圣光术", "荣耀圣令", "清洁术" }
-    local specialSpells = {}
-    local staticSpells = {
-        [1] = "圣疗术",
-        [2] = "牺牲祝福",
-        [3] = "代祷",
-        [4] = "圣盾术",
-        [5] = "盲目之光",
-        [6] = "保护祝福",
-        [7] = "审判",
-        [8] = "制裁之锤",
-        [9] = "光环掌握",
-        [10] = "圣洁鸣钟",
-        [11] = "正义盾击",
-        [12] = "黎明之光",
-        [13] = "自由祝福",
-        [14] = "神圣棱镜",
-        [15] = "神圣震击",
-    }
     fu.CreateMacro(dynamicSpells, staticSpells, specialSpells)
 end
 
 -- 更新法术成功效果
 function fu.updateSpellSuccess(spellID)
-
+    if spellID == 31884 then
+        C_Timer.After(0.5, function()
+            local isSpellOverlayed = C_SpellActivationOverlay.IsSpellOverlayed(82326)
+            if isSpellOverlayed then
+                auras.handOfDivinity.expirationTime = GetTime() + auras.handOfDivinity.duration
+                auras.handOfDivinity.applications = 2
+            end
+        end)
+    elseif spellID == 82326 then
+        C_Timer.After(0.1, function()
+            local isSpellOverlayed = C_SpellActivationOverlay.IsSpellOverlayed(82326)
+            print(isSpellOverlayed)
+            if isSpellOverlayed then
+                auras.handOfDivinity.applications = auras.handOfDivinity.applications - 1
+            else
+                auras.handOfDivinity.applications = 0
+                auras.handOfDivinity.expirationTime = nil
+            end
+        end)
+    end
 end
 
 -- 更新法术发光效果
 function fu.updateSpellOverlay(spellId)
-
+    --[[if spellId == 82326 then
+        local isSpellOverlayed = C_SpellActivationOverlay.IsSpellOverlayed(82326)
+        if isSpellOverlayed then
+            auras.handOfDivinity.expirationTime = GetTime() + auras.handOfDivinity.duration
+        else
+            auras.handOfDivinity.expirationTime = nil
+        end
+    end]]
 end
 
 -- 更新法术警报, SPELL_ACTIVATION_OVERLAY_SHOW
@@ -87,6 +120,7 @@ function fu.updateSpecInfo(specIndex)
             aura = {
                 ["神圣意志"] = auras.divinePurpose.index,
                 ["圣光灌注"] = auras.infusionOfLight.index,
+                ["神性之手"] = auras.handOfDivinity.index,
             },
             spell_cd = {
                 { index = 21, spellId = 20473, name = "神圣震击" },

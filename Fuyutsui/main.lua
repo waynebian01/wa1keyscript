@@ -4,8 +4,8 @@ local creat = fu.updateOrCreatTextureByIndex
 local state, group, target, nameplate, fixed_blocks, blocks, assistant, group_list = {}, {}, {}, {}, {}, {}, {}, {}
 local group_show, group_unit_start, group_block_num, group_blocks = false, 40, 7, {}
 local castTargetName, castTargetUnit, updateIndex = nil, nil, 1
-local updateSpellSuccess, updateSpellOverlay, updateOnUpdate, updateSpecInfo,
-CreateClassMacro, spellActivationOverlayShow, spellActivationOverlayHide
+local updateSpellSuccess, updateSpellOverlay, updateOnUpdate, updateSpecInfo
+local CreateClassMacro, spellActivationOverlayShow, spellActivationOverlayHide
 local roleMap = fu.roleMap
 local enumPowerType = fu.EnumPowerType
 
@@ -313,39 +313,37 @@ local function updateUnitHealthInfo(unit)
     creat(index, obj.healthPercent)
 end
 
-local function updateUnitRole(unit)
-    local obj = group[unit]
-    if not group_show or not obj then return end
-    local index = group_unit_start + obj.index * group_block_num + group_blocks.role
-    if obj.valid then
-        creat(index, roleMap[obj.role] and roleMap[obj.role] / 255 or 0)
-    else
-        creat(index, 0)
-    end
-end
-
-local function updateUnitValid(unit)
-    local obj = group[unit]
-    if not obj then return end
-    obj.valid = not obj.isDead and obj.inRange and obj.canAssist and obj.inSight
-    updateUnitRole(unit)
-end
-
+local falseValue = CreateColor(0, 0, 0, 1)
 local function updateGroupInRange()
+    if not group_show then return end
     local numUnits = #group_list
     if numUnits > 1 then
         local unit = group_list[updateIndex]
         local obj = group[unit]
-        if fu.HelpfulSpellId and obj then
-            obj.inRange = C_Spell.IsSpellInRange(fu.HelpfulSpellId, unit)
-            obj.canAssist = UnitCanAssist("player", unit)
-            updateUnitValid(unit)
+        if not obj then return end
+        local index = group_unit_start + obj.index * group_block_num + group_blocks.role
+        obj.isDead = UnitIsDeadOrGhost(unit)
+        if obj.valid then
+            local inRange = UnitInRange(unit)
+            local roleValue = roleMap[obj.role] and roleMap[obj.role] / 255 or 5
+            local trueValue = CreateColor(0, 0, roleValue, 1)
+            local booleanValue = C_CurveUtil.EvaluateColorFromBoolean(inRange, trueValue, falseValue)
+            local _, _, b = booleanValue:GetRGB()
+            creat(index, b)
+        else
+            creat(index, 0)
         end
         updateIndex = updateIndex + 1
         if updateIndex > numUnits then
             updateIndex = 1
         end
     end
+end
+
+local function updateUnitValid(unit)
+    local obj = group[unit]
+    if not obj then return end
+    obj.valid = not obj.isDead and obj.canAssist and obj.inSight
 end
 
 local function updateUnitDeath(unitGUID)
@@ -472,6 +470,7 @@ local function updateGroupType()
 end
 local function updateGroup()
     table.wipe(group)
+    table.wipe(group_list)
     clearGroupBlocks()
     local i = 0
     for unit in fu.IterateGroupMembers() do
@@ -482,7 +481,7 @@ local function updateGroup()
             GUID = UnitGUID(unit),
             role = UnitGroupRolesAssigned(unit),
             isDead = UnitIsDeadOrGhost(unit),
-            inRange = fu.HelpfulSpellId and C_Spell.IsSpellInRange(fu.HelpfulSpellId, unit),
+            inRange = UnitInRange(unit),
             canAttack = UnitCanAttack("player", unit),
             canAssist = UnitCanAssist("player", unit),
             inSight = true,
@@ -494,7 +493,6 @@ local function updateGroup()
         updateUnitValid(unit)
         updateUnitHealthInfo(unit)
         updateUnitFullAura(unit)
-        updateUnitRole(unit)
         i = i + 1
     end
     fu.group = group

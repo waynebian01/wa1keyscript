@@ -84,7 +84,7 @@ function fu.updateSpecInfo(specIndex)
             assistant = 11,
             target_valid = 12,
             group_type = 13,
-            group_count = 14,
+            members_count = 14,
             spell_cd = {
                 { index = 15, spellId = 17, name = "真言术：盾" },
                 { index = 16, spellId = 47540, name = "苦修" },

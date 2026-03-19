@@ -50,6 +50,9 @@ state:
     圣光灌注:
       step: 16
       type: "int"
+    神性之手:
+      step: 17
+      type: "int"
     spells:
       神圣震击:
         step: 21
@@ -112,6 +115,12 @@ state:
     目标有效:
       step: 12
       type: "bool"
+    队伍类型:
+      step: 13
+      type: "int"
+    队伍人数:
+      step: 14
+      type: "int"
     spells:
       真言术：盾:
         step: 15
