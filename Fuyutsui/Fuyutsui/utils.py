@@ -418,15 +418,6 @@ def get_unit_with_aura(state_dict, aura_name):
         if not _role_not_zero(data):
             continue
 
-        # 生命值 0 视为死亡不选
-        pct = data.get("生命值")
-        try:
-            pct = int(pct) if pct is not None else None
-        except (TypeError, ValueError):
-            pct = None
-        if pct is None or pct <= 0:
-            continue
-
         # aura 数值为 0 视为没有该光环
         val = data.get(aura_name)
         if val is None:

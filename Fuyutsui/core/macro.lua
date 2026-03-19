@@ -62,7 +62,7 @@ function fu.CreateMacro(dynamicData, staticData, specialData)
             if spell then
                 local raidIdx = ((i - 1) % 30) + 1
                 if raidIdx == 1 then
-                    macroBody = format("/cast [group:raid,@raid1]%s;[@player]%s", spell, spell)
+                    macroBody = format("/cast [group:raid,@raid1]%s;[group:party,@player]%s", spell, spell)
                 elseif raidIdx <= 5 then
                     macroBody = format("/cast [group:raid,@raid%d]%s;[group:party,@party%d]%s", raidIdx, spell,
                         raidIdx - 1, spell)

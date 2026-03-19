@@ -293,7 +293,7 @@ def create_gui():
 
     ctk.CTkCheckBox(
         inner_top,
-        text="逻辑开启 (也可用 X2 切换)",
+        text="逻辑开启",
         variable=toggle_var,
         command=on_toggle,
         font=("Microsoft YaHei", 12),
@@ -308,6 +308,140 @@ def create_gui():
             toggle_var.set(v)
             status_label.configure(text=f"状态: {'开启' if v else '关闭'}",
                                   text_color=GREEN if v else RED)
+
+    # ---- 3. 显示队伍（弹窗）----
+    def open_team_window():
+        with _state_lock:
+            spec_snapshot = _spec_name
+            class_snapshot = _class_name
+
+        team_window = ctk.CTkToplevel(root)
+        team_window.title("队伍信息")
+        team_window.geometry("550x600")
+        team_window.resizable(True, True)
+        team_window.attributes("-topmost", True)
+        try:
+            team_window.attributes("-alpha", WINDOW_ALPHA)
+        except Exception:
+            pass
+
+        header_frame = ctk.CTkFrame(team_window, fg_color=BG_FRAME, corner_radius=8)
+        header_frame.pack(fill="x", padx=12, pady=(12, 8))
+        header_label = ctk.CTkLabel(
+            header_frame,
+            text=f"队伍信息（职业: {class_snapshot or '-'} / 专精: {spec_snapshot or '-'})",
+            font=("Microsoft YaHei", 12, "bold"),
+            text_color=FG_LIGHT,
+            anchor="w",
+        )
+        header_label.pack(fill="x", padx=12, pady=10)
+
+        body_frame = ctk.CTkFrame(team_window, fg_color="transparent")
+        body_frame.pack(fill="both", expand=True, padx=12, pady=(0, 12))
+
+        team_text = ctk.CTkTextbox(
+            body_frame,
+            wrap="none",
+            font=("Consolas", 11),
+            corner_radius=8,
+        )
+        team_text.pack(fill="both", expand=True)
+        team_text.configure(state="disabled")
+
+        def format_value(v):
+            if v is None:
+                return "-"
+            if isinstance(v, bool):
+                return "是" if v else "否"
+            return str(v)
+
+        def build_team_text(sd, spec_name, unit_info):
+            group = sd.get("group") or {}
+            if not group:
+                return "未检测到队伍数据（请确认游戏窗口存在且扫描成功）。\n"
+
+            # group keys 理论上是 "1".."30"
+            unit_keys = sorted(
+                group.keys(),
+                key=lambda x: int(x) if str(x).isdigit() else 10**9,
+            )
+
+            # 字段排序：优先使用当前专精在主界面显示的字段顺序，其余字段按字母排序补齐
+            ordered_fields = []
+            if spec_name:
+                try:
+                    _, fields_for_spec = get_group_config_for_spec(spec_name)
+                    ordered_fields.extend([f for f in fields_for_spec if f not in ordered_fields])
+                except Exception:
+                    pass
+
+            rest_fields = set()
+            for uk in unit_keys:
+                unit_data = group.get(uk) or {}
+                for f in unit_data.keys():
+                    if f not in ordered_fields:
+                        rest_fields.add(f)
+
+            ordered_fields.extend(sorted(rest_fields))
+
+            lines = []
+            lines.append(f"单位总数: {len(unit_keys)}")
+            lines.append(f"字段数: {len(ordered_fields)}")
+            lines.append("")
+
+            for uk in unit_keys:
+                unit_data = group.get(uk) or {}
+                # 每个单位严格一行：字段之间用分隔符拼接，避免多行导致滚动成本过高
+                field_parts = []
+                for f in ordered_fields:
+                    field_parts.append(f"{f}={format_value(unit_data.get(f))}")
+                lines.append(f"Unit {uk}: " + " | ".join(field_parts))
+
+            if unit_info:
+                lines.append("")
+                lines.append("逻辑推荐/目标单位（unit_info）")
+                for k in sorted(unit_info.keys()):
+                    lines.append(f"  {k}: {format_value(unit_info.get(k))}")
+
+            return "\n".join(lines) + "\n"
+
+        # 自动刷新：让弹窗能跟随实时状态变化
+        def refresh():
+            if not team_window.winfo_exists():
+                return
+
+            with _state_lock:
+                sd_now = dict(_state_dict)
+                spec_now = _spec_name
+                class_now = _class_name
+                unit_info_now = dict(_unit_info)
+
+            # 更新顶部标题（职业/专精可能在首次打开后发生变化）
+            header_label.configure(
+                text=f"队伍信息（职业: {class_now or '-'} / 专精: {spec_now or '-'})"
+            )
+
+            team_text.configure(state="normal")
+            team_text.delete("1.0", "end")
+            team_text.insert("end", build_team_text(sd_now, spec_now, unit_info_now))
+            team_text.configure(state="disabled")
+
+            TEAM_WINDOW_REFRESH_MS = 500
+            team_window.after(TEAM_WINDOW_REFRESH_MS, refresh)
+
+        refresh()
+
+    # 顶部新增按钮：点击弹窗展示所有单位信息
+    ctk.CTkButton(
+        inner_top,
+        text="显示队伍",
+        command=open_team_window,
+        font=("Microsoft YaHei", 12),
+        fg_color=BG_FRAME,
+        text_color=FG_LIGHT,
+        hover_color="#3d3d3d",
+        corner_radius=8,
+    ).pack(side="right", padx=(8, 0))
 
     # ---- 2. 状态区域（未检测到职业时不显示）----
     content_frame = ctk.CTkFrame(main_frame, fg_color="transparent")

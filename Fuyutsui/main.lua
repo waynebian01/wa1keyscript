@@ -828,12 +828,12 @@ frame:SetScript("OnUpdate", function(_, update)
     timer10 = timer10 + update
     updatePlayerCastingInfo()
     updatePlayerChannelingInfo()
+    updateGroupInRange()
     if timer02 > 0.2 then
         updateSpellCooldown()
         updateSpellChargeCooldown()
         OnUpdateUnitAura()
         updatePlayerAssistant()
-        updateGroupInRange()
         timer02 = 0
     end
     if timer10 >= 1 then

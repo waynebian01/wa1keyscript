@@ -95,6 +95,7 @@ def run_druid_logic(state_dict, spec_name):
             "one_rejuv_unit": one_rejuv_unit,
             "one_rejuv_pct": one_rejuv_pct,
             "no_lifebloom_tank": no_lifebloom_tank,
+            "has_lifebloom_unit": has_lifebloom_unit,
         }
 
         if channeling > 0:
@@ -109,9 +110,9 @@ def run_druid_logic(state_dict, spec_name):
             current_step = f"施放 自然之愈 on {dispel_unit_poison}"
             action_hotkey = get_hotkey(int(dispel_unit_poison), "自然之愈")
         elif has_lifebloom_unit is not None and has_lifebloom_duration is not None and has_lifebloom_duration < 3:
-            current_step = f"施放 生命绽放 on {has_lifebloom_unit}"
+            current_step = f"补 生命绽放 on {has_lifebloom_unit}"
             action_hotkey = get_hotkey(int(has_lifebloom_unit), "生命绽放")
-        elif no_lifebloom_tank is not None and has_lifebloom_unit is None:
+        elif has_lifebloom_unit is None and no_lifebloom_tank is not None:
             current_step = f"施放 生命绽放 on {no_lifebloom_tank}"
             action_hotkey = get_hotkey(int(no_lifebloom_tank), "生命绽放")
         elif casting == 0 and 0 < state_dict.get("节能施法") < 5 and no_regrowth_lowest_unit is not None and no_regrowth_lowest_pct is not None and no_regrowth_lowest_pct < 90:
@@ -141,7 +142,7 @@ def run_druid_logic(state_dict, spec_name):
         elif spells.get("自然迅捷") == 0 and no_regrowth_lowest_unit is not None and no_regrowth_lowest_pct is not None and no_regrowth_lowest_pct < 70:
             current_step = "施放 自然迅捷"
             action_hotkey = get_hotkey(0, "自然迅捷")
-        elif one_rejuv_unit is not None and one_rejuv_pct is not None and one_rejuv_pct < 80:
+        elif one_rejuv_unit is not None and one_rejuv_pct is not None and one_rejuv_pct < 80 and state_dict.get("队伍类型") == 46:
             current_step = f"施放 回春术 on {one_rejuv_unit}"
             action_hotkey = get_hotkey(int(one_rejuv_unit), "回春术")
         elif no_rejuv_unit is not None and no_rejuv_pct is not None and no_rejuv_pct < 95:
