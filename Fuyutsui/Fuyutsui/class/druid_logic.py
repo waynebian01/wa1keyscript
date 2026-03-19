@@ -111,7 +111,7 @@ def run_druid_logic(state_dict, spec_name):
         elif has_lifebloom_unit is not None and has_lifebloom_duration is not None and has_lifebloom_duration < 3:
             current_step = f"施放 生命绽放 on {has_lifebloom_unit}"
             action_hotkey = get_hotkey(int(has_lifebloom_unit), "生命绽放")
-        elif no_lifebloom_tank is not None:
+        elif no_lifebloom_tank is not None and has_lifebloom_unit is None:
             current_step = f"施放 生命绽放 on {no_lifebloom_tank}"
             action_hotkey = get_hotkey(int(no_lifebloom_tank), "生命绽放")
         elif casting == 0 and 0 < state_dict.get("节能施法") < 5 and no_regrowth_lowest_unit is not None and no_regrowth_lowest_pct is not None and no_regrowth_lowest_pct < 90:
@@ -157,7 +157,7 @@ def run_druid_logic(state_dict, spec_name):
             if assistant_value == 4:
                 current_step = "施放 斜掠"
                 action_hotkey = get_hotkey(0, "斜掠")
-            elif state_dict.get("目标距离") == 1:
+            elif state_dict.get("目标距离") <= 8:
                 if state_dict.get("姿态") != 1:
                     current_step = "施放 猎豹形态"
                     action_hotkey = get_hotkey(0, "猎豹形态")
@@ -177,7 +177,7 @@ def run_druid_logic(state_dict, spec_name):
                         action_hotkey = get_hotkey(0, tup[1])
                     else:
                         current_step = "战斗中-无匹配技能"
-            elif state_dict.get("目标距离") == 2:
+            elif state_dict.get("目标距离") > 8:
                 if assistant_value == 5:
                     current_step = "施放 月火术"
                     action_hotkey = get_hotkey(0, "月火术")

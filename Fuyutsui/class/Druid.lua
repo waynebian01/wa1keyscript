@@ -214,7 +214,7 @@ function fu.updateSpecInfo(specIndex)
             target_valid = 12,
             group_type = 13,
             stance = 14,
-            target_distance = 15,
+            target_maxRange = 15,
             members_count = 16,
             comboPoints = 17,
             aura = {

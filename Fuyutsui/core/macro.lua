@@ -1,4 +1,5 @@
 local _, fu = ...
+local format = string.format
 
 local macroList = {}
 local macroKind = {}
@@ -26,8 +27,6 @@ do
     end
 end
 
-local floor = math.floor
-local format = string.format
 
 local function createMacro(name, key, macro)
     if InCombatLockdown() then
@@ -57,7 +56,7 @@ function fu.CreateMacro(dynamicData, staticData, specialData)
         local keyBinding = macroKind[i]
         local macroBody
         if i <= dynamicSlots then
-            local groupIndex = floor((i - 1) / 30) + 1
+            local groupIndex = math.floor((i - 1) / 30) + 1
             local spell = dynamicData[groupIndex]
 
             if spell then

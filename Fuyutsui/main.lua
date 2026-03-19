@@ -1,5 +1,5 @@
 local _, fu = ...
-
+local rc = LibStub("LibRangeCheck-3.0")
 local creat = fu.updateOrCreatTextureByIndex
 local state, group, target, nameplate, fixed_blocks, blocks, assistant, group_list = {}, {}, {}, {}, {}, {}, {}, {}
 local group_show, group_unit_start, group_block_num, group_blocks = false, 40, 7, {}
@@ -230,23 +230,19 @@ end
 
 -- 更新目标距离, 0:不在范围内, 1:近战范围, 2:远程范围
 local function updateTargetDistance()
-    local distance = 0
-    local melee = fu.HarmfulMeleeSpellId and C_Spell.IsSpellInRange(fu.HarmfulMeleeSpellId, "target")
-    local remote = fu.HarmfulRemoteSpellId and C_Spell.IsSpellInRange(fu.HarmfulRemoteSpellId, "target")
-    if melee then
-        distance = 1
-    elseif remote then
-        distance = 2
-    else
-        distance = 0
-    end
-    return distance
+    local minRange, maxRange = rc:GetRange("target")
+    return minRange, maxRange
 end
 
 local function updateTargetDistanceBlock()
-    target.distance = updateTargetDistance()
-    if blocks and blocks.target_distance then
-        creat(blocks.target_distance, target.distance / 255)
+    local minRange, maxRange = updateTargetDistance()
+    target.maxRange = maxRange
+    if blocks and blocks.target_maxRange then
+        if target.maxRange then
+            creat(blocks.target_maxRange, target.maxRange / 255)
+        else
+            creat(blocks.target_maxRange, 1)
+        end
     end
 end
 
@@ -313,6 +309,12 @@ local function updateUnitHealthInfo(unit)
     creat(index, obj.healthPercent)
 end
 
+local function updateUnitValid(unit)
+    local obj = group[unit]
+    if not obj then return end
+    obj.valid = not obj.isDead and obj.canAssist and obj.inSight
+end
+
 local falseValue = CreateColor(0, 0, 0, 1)
 local function updateGroupInRange()
     if not group_show then return end
@@ -323,6 +325,7 @@ local function updateGroupInRange()
         if not obj then return end
         local index = group_unit_start + obj.index * group_block_num + group_blocks.role
         obj.isDead = UnitIsDeadOrGhost(unit)
+        updateUnitValid(unit)
         if obj.valid then
             local inRange = UnitInRange(unit)
             local roleValue = roleMap[obj.role] and roleMap[obj.role] / 255 or 5
@@ -338,12 +341,6 @@ local function updateGroupInRange()
             updateIndex = 1
         end
     end
-end
-
-local function updateUnitValid(unit)
-    local obj = group[unit]
-    if not obj then return end
-    obj.valid = not obj.isDead and obj.canAssist and obj.inSight
 end
 
 local function updateUnitDeath(unitGUID)
@@ -520,7 +517,6 @@ function frame:PLAYER_ENTERING_WORLD()
     updatePlayerPower()
     updatePlayerAssistant()
     updateGroup()
-    updateTargetFullInfo()
     fu.readKeybindings() -- 读取按键绑定
     updateShapeshiftForm()
     updateRune()
